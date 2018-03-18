@@ -1,0 +1,127 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ComputerInfo" Version="0.1.0-prerelease" />
+    <PackageReference Include="ILLink.Tasks" Version="0.1.4-preview-981901" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Saplin.StorageSpeedMeter\Saplin.StorageSpeedMeter.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="out_w64\ComputerInfo.dll" />
+    <None Remove="out_w64\Microsoft.DiaSymReader.Native.amd64.dll" />
+    <None Remove="out_w64\Microsoft.DotNet.PlatformAbstractions.dll" />
+    <None Remove="out_w64\Microsoft.Win32.Primitives.dll" />
+    <None Remove="out_w64\Microsoft.Win32.Registry.dll" />
+    <None Remove="out_w64\Saplin.StorageSpeedMeter.dll" />
+    <None Remove="out_w64\Saplin.StorageSpeedMeter.pdb" />
+    <None Remove="out_w64\System.AppContext.dll" />
+    <None Remove="out_w64\System.Buffers.dll" />
+    <None Remove="out_w64\System.Collections.NonGeneric.dll" />
+    <None Remove="out_w64\System.Collections.dll" />
+    <None Remove="out_w64\System.ComponentModel.Primitives.dll" />
+    <None Remove="out_w64\System.ComponentModel.TypeConverter.dll" />
+    <None Remove="out_w64\System.ComponentModel.dll" />
+    <None Remove="out_w64\System.Console.dll" />
+    <None Remove="out_w64\System.Data.Common.dll" />
+    <None Remove="out_w64\System.Diagnostics.Contracts.dll" />
+    <None Remove="out_w64\System.Diagnostics.Debug.dll" />
+    <None Remove="out_w64\System.Diagnostics.Process.dll" />
+    <None Remove="out_w64\System.Diagnostics.StackTrace.dll" />
+    <None Remove="out_w64\System.Diagnostics.Tools.dll" />
+    <None Remove="out_w64\System.Diagnostics.Tracing.dll" />
+    <None Remove="out_w64\System.IO.FileSystem.DriveInfo.dll" />
+    <None Remove="out_w64\System.IO.FileSystem.dll" />
+    <None Remove="out_w64\System.Linq.Expressions.dll" />
+    <None Remove="out_w64\System.Linq.Queryable.dll" />
+    <None Remove="out_w64\System.Linq.dll" />
+    <None Remove="out_w64\System.ObjectModel.dll" />
+    <None Remove="out_w64\System.Private.CoreLib.dll" />
+    <None Remove="out_w64\System.Reflection.Emit.ILGeneration.dll" />
+    <None Remove="out_w64\System.Reflection.Emit.Lightweight.dll" />
+    <None Remove="out_w64\System.Reflection.Emit.dll" />
+    <None Remove="out_w64\System.Reflection.Primitives.dll" />
+    <None Remove="out_w64\System.Resources.ResourceManager.dll" />
+    <None Remove="out_w64\System.Runtime.Extensions.dll" />
+    <None Remove="out_w64\System.Runtime.InteropServices.RuntimeInformation.dll" />
+    <None Remove="out_w64\System.Runtime.InteropServices.dll" />
+    <None Remove="out_w64\System.Runtime.Serialization.Formatters.dll" />
+    <None Remove="out_w64\System.Runtime.Serialization.Primitives.dll" />
+    <None Remove="out_w64\System.Runtime.dll" />
+    <None Remove="out_w64\System.Security.Cryptography.Primitives.dll" />
+    <None Remove="out_w64\System.Text.Encoding.Extensions.dll" />
+    <None Remove="out_w64\System.Threading.Overlapped.dll" />
+    <None Remove="out_w64\System.Threading.Tasks.dll" />
+    <None Remove="out_w64\System.Threading.Thread.dll" />
+    <None Remove="out_w64\System.Threading.ThreadPool.dll" />
+    <None Remove="out_w64\System.Threading.Timer.dll" />
+    <None Remove="out_w64\System.Threading.dll" />
+    <None Remove="out_w64\WinMacDiskSpeedTest.deps.json" />
+    <None Remove="out_w64\WinMacDiskSpeedTest.dll" />
+    <None Remove="out_w64\WinMacDiskSpeedTest.exe" />
+    <None Remove="out_w64\WinMacDiskSpeedTest.pdb" />
+    <None Remove="out_w64\WinMacDiskSpeedTest.runtimeconfig.json" />
+    <None Remove="out_w64\api-ms-win-core-console-l1-1-0.dll" />
+    <None Remove="out_w64\api-ms-win-core-datetime-l1-1-0.dll" />
+    <None Remove="out_w64\api-ms-win-core-debug-l1-1-0.dll" />
+    <None Remove="out_w64\api-ms-win-core-errorhandling-l1-1-0.dll" />
+    <None Remove="out_w64\api-ms-win-core-file-l1-1-0.dll" />
+    <None Remove="out_w64\api-ms-win-core-file-l1-2-0.dll" />
+    <None Remove="out_w64\api-ms-win-core-file-l2-1-0.dll" />
+    <None Remove="out_w64\api-ms-win-core-handle-l1-1-0.dll" />
+    <None Remove="out_w64\api-ms-win-core-heap-l1-1-0.dll" />
+    <None Remove="out_w64\api-ms-win-core-interlocked-l1-1-0.dll" />
+    <None Remove="out_w64\api-ms-win-core-libraryloader-l1-1-0.dll" />
+    <None Remove="out_w64\api-ms-win-core-localization-l1-2-0.dll" />
+    <None Remove="out_w64\api-ms-win-core-memory-l1-1-0.dll" />
+    <None Remove="out_w64\api-ms-win-core-namedpipe-l1-1-0.dll" />
+    <None Remove="out_w64\api-ms-win-core-processenvironment-l1-1-0.dll" />
+    <None Remove="out_w64\api-ms-win-core-processthreads-l1-1-0.dll" />
+    <None Remove="out_w64\api-ms-win-core-processthreads-l1-1-1.dll" />
+    <None Remove="out_w64\api-ms-win-core-profile-l1-1-0.dll" />
+    <None Remove="out_w64\api-ms-win-core-rtlsupport-l1-1-0.dll" />
+    <None Remove="out_w64\api-ms-win-core-string-l1-1-0.dll" />
+    <None Remove="out_w64\api-ms-win-core-synch-l1-1-0.dll" />
+    <None Remove="out_w64\api-ms-win-core-synch-l1-2-0.dll" />
+    <None Remove="out_w64\api-ms-win-core-sysinfo-l1-1-0.dll" />
+    <None Remove="out_w64\api-ms-win-core-timezone-l1-1-0.dll" />
+    <None Remove="out_w64\api-ms-win-core-util-l1-1-0.dll" />
+    <None Remove="out_w64\api-ms-win-crt-conio-l1-1-0.dll" />
+    <None Remove="out_w64\api-ms-win-crt-convert-l1-1-0.dll" />
+    <None Remove="out_w64\api-ms-win-crt-environment-l1-1-0.dll" />
+    <None Remove="out_w64\api-ms-win-crt-filesystem-l1-1-0.dll" />
+    <None Remove="out_w64\api-ms-win-crt-heap-l1-1-0.dll" />
+    <None Remove="out_w64\api-ms-win-crt-locale-l1-1-0.dll" />
+    <None Remove="out_w64\api-ms-win-crt-math-l1-1-0.dll" />
+    <None Remove="out_w64\api-ms-win-crt-multibyte-l1-1-0.dll" />
+    <None Remove="out_w64\api-ms-win-crt-private-l1-1-0.dll" />
+    <None Remove="out_w64\api-ms-win-crt-process-l1-1-0.dll" />
+    <None Remove="out_w64\api-ms-win-crt-runtime-l1-1-0.dll" />
+    <None Remove="out_w64\api-ms-win-crt-stdio-l1-1-0.dll" />
+    <None Remove="out_w64\api-ms-win-crt-string-l1-1-0.dll" />
+    <None Remove="out_w64\api-ms-win-crt-time-l1-1-0.dll" />
+    <None Remove="out_w64\api-ms-win-crt-utility-l1-1-0.dll" />
+    <None Remove="out_w64\clrcompression.dll" />
+    <None Remove="out_w64\clretwrc.dll" />
+    <None Remove="out_w64\clrjit.dll" />
+    <None Remove="out_w64\coreclr.dll" />
+    <None Remove="out_w64\dbgshim.dll" />
+    <None Remove="out_w64\hostfxr.dll" />
+    <None Remove="out_w64\hostpolicy.dll" />
+    <None Remove="out_w64\mscordaccore.dll" />
+    <None Remove="out_w64\mscordaccore_amd64_amd64_4.6.00001.0.dll" />
+    <None Remove="out_w64\mscordbi.dll" />
+    <None Remove="out_w64\mscorrc.debug.dll" />
+    <None Remove="out_w64\mscorrc.dll" />
+    <None Remove="out_w64\netstandard.dll" />
+    <None Remove="out_w64\sos.dll" />
+    <None Remove="out_w64\sos_amd64_amd64_4.6.00001.0.dll" />
+    <None Remove="out_w64\ucrtbase.dll" />
+  </ItemGroup>
+</Project>
