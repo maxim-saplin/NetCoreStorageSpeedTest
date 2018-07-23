@@ -8,15 +8,14 @@ namespace Saplin.StorageSpeedMeter
     public class BigTest : TestSuite
     {
         public const int bigBlockSize = 64 * 1024 * 1024;
-        const double readFileToFullRatio = 0.5; // sequential read is executed only on a portion of file
+        const double readFileToFullRatio = 1.0; // sequential read is executed only on a portion of file
         const double avgReadToWriteRatio = 1.1; // starting point for elapsed time estimation
         const int randomDuration = 20;
-        readonly long[] smallBlocks = new long[] { 4 * 1024, 64 * 1024, 256 * 1024 };
-
+        
         long bigBlocksNumber;
         long fileSize;
 
-        TestFile file;
+        TestFile writeFile, readFile;  //FILE_FLAG_NO_BUFFERING attribute breakes unaligned writes, separate read/write hadnles ar needed with different attribtes
 
         private const long maxArraySize = 128 * 1024 * 1024; // 0.5Gb
         private byte[][] holdMem;
@@ -24,56 +23,25 @@ namespace Saplin.StorageSpeedMeter
         public BigTest(string drivePath)
         {
 
-            file = new TestFile(drivePath);
-            bigBlocksNumber = (int)(RamDiskUtil.TotalRam * .5 / bigBlockSize + 1);
+            writeFile = new TestFile(drivePath);
+            readFile = new TestFile(drivePath, true);
+            bigBlocksNumber = 10;
             fileSize = bigBlocksNumber * bigBlockSize;
 
-            AddTest(new SequentialWriteTest(file.Stream, bigBlockSize, bigBlocksNumber, true));
-            AddTest(new SequentialReadTest(file.Stream, bigBlockSize, (long)(bigBlocksNumber * readFileToFullRatio)));
-            AddTest(new RandomReadTest(file.Stream, 256 * 1024, randomDuration));
-            AddTest(new RandomWriteTest(file.Stream, 256 * 1024, randomDuration));
-            AddTest(new RandomReadTest(file.Stream, 64 * 1024, randomDuration));
-            AddTest(new RandomWriteTest(file.Stream, 64 * 1024, randomDuration));
-            AddTest(new RandomReadTest(file.Stream, 8 * 1024, randomDuration));
-            AddTest(new RandomWriteTest(file.Stream, 8 * 1024, randomDuration));
-            AddTest(new RandomReadTest(file.Stream, 4 * 1024, randomDuration));
-            AddTest(new RandomWriteTest(file.Stream, 4 * 1024, randomDuration));
+            AddTest(new SequentialWriteTest(writeFile.Stream, bigBlockSize, bigBlocksNumber, true));
+            AddTest(new SequentialReadTest(readFile.Stream, bigBlockSize, (long)(bigBlocksNumber * readFileToFullRatio)));
+            
+            //AddTest(new RandomReadTest(file.Stream, 256 * 1024, randomDuration));
+            //AddTest(new RandomWriteTest(file.Stream, 256 * 1024, randomDuration));
+            //AddTest(new RandomReadTest(file.Stream, 64 * 1024, randomDuration));
+            //AddTest(new RandomWriteTest(file.Stream, 64 * 1024, randomDuration));
+            //AddTest(new RandomReadTest(file.Stream, 8 * 1024, randomDuration));
+            //AddTest(new RandomWriteTest(file.Stream, 8 * 1024, randomDuration));
+
+            AddTest(new RandomReadTest(readFile.Stream, 4 * 1024, randomDuration));
+            AddTest(new RandomWriteTest(writeFile.Stream, 4 * 1024, randomDuration));
 
             SetUpRemainigCalculations();
-        }
-
-        private void HoldMemory()
-        {
-            var holdMemSize = (long)(RamDiskUtil.FreeRam * .9);
-            holdMem = AllocateArray(holdMemSize);
-        }
-
-        private byte[][] AllocateArray(long bytesToAllocate)
-        {
-            if (bytesToAllocate <= 0) return null;
-
-            var arraysRequired = bytesToAllocate / maxArraySize + (bytesToAllocate % maxArraySize == 0 ? 0 : 1);
-            var array = new byte[arraysRequired][];
-
-            try
-            {
-                while (arraysRequired > 0)
-                {
-                    arraysRequired--;
-
-                    if (arraysRequired != 0)
-                        array[arraysRequired] = new byte[maxArraySize];
-                    else array[arraysRequired] = new byte[bytesToAllocate % maxArraySize == 0 ? maxArraySize : bytesToAllocate % maxArraySize];
-
-                    Array.Clear(array[arraysRequired], 0, array[arraysRequired].Length);
-                }
-            }
-            catch (OutOfMemoryException ex)
-            {
-                array[arraysRequired] = null;
-            }
-
-            return array;
         }
 
         long remainingMs;
@@ -170,49 +138,39 @@ namespace Saplin.StorageSpeedMeter
         {
             writeScore = readScore = null;
 
-            HoldMemory(); // allocate and hold half of available memory to mitigate disk caching influence on read tests
-
             var results = base.Execute();
 
-            ReleaseMemory();// purge reference to holdMem array and make allocated available for garbage collection
-            file.Dispose();
+            readFile.Dispose();
+            writeFile.Dispose();
 
             return results;
         }
 
-        private void ReleaseMemory()
-        {
-            holdMem = null;
-            GC.Collect(2, GCCollectionMode.Forced, true);
-        }
-
-        private long cleanupTimeMs = 10000;
+        private long cleanupTimeMs = 1;
 
         protected override void PrerequisiteCleanup(int testIndex)
         {
-            var sw = new Stopwatch();
-            sw.Start();
+        //    var sw = new Stopwatch();
+        //    sw.Start();
 
-            var buff = new byte[bigBlockSize];
+        //    var buff = new byte[bigBlockSize];
 
-            AllocateArray((long)(RamDiskUtil.FreeRam)); // purge disk as mucg cache in RAM as possible by allocating remaining memory
+        //    var startPosition = file.Stream.Length * 3 / 4;
+        //    var blocks = file.Stream.Length / 4 / bigBlockSize;
 
-            var startPosition = file.Stream.Length * 3 / 4;
-            var blocks = file.Stream.Length / 4 / bigBlockSize;
+        //    file.Stream.Seek(startPosition, System.IO.SeekOrigin.Begin);
 
-            file.Stream.Seek(startPosition, System.IO.SeekOrigin.Begin);
-
-            while (blocks > 0)
-            {
-                file.Stream.Read(buff, 0, bigBlockSize);
-                blocks--;
-            }
+        //    while (blocks > 0)
+        //    {
+        //        file.Stream.Read(buff, 0, bigBlockSize);
+        //        blocks--;
+        //    }
 
 
-            base.PrerequisiteCleanup(testIndex);
+        //    base.PrerequisiteCleanup(testIndex);
 
-            sw.Stop();
-            cleanupTimeMs = sw.ElapsedMilliseconds;
+        //    sw.Stop();
+        //    cleanupTimeMs = sw.ElapsedMilliseconds;
         }
 
         public override long RemainingMs => remainingMs;
@@ -221,7 +179,7 @@ namespace Saplin.StorageSpeedMeter
         {
             get
             {
-                return file.Path;
+                return writeFile.Path;
             }
         }
 
@@ -229,7 +187,7 @@ namespace Saplin.StorageSpeedMeter
         {
             get
             {
-                return file.FolderPath;
+                return writeFile.FolderPath;
             }
         }
 
@@ -237,7 +195,7 @@ namespace Saplin.StorageSpeedMeter
         {
             get
             {
-                return System.IO.Path.Combine(file.FolderPath, "StorageSpeedTestResults");
+                return System.IO.Path.Combine(writeFile.FolderPath, "StorageSpeedTestResults");
             }
         }
 

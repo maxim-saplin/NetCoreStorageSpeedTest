@@ -15,12 +15,19 @@ namespace Saplin.StorageSpeedMeter
             get;
         }
 
-        public TestFile(string drivePath)
+        public bool ReadOnly //FILE_FLAG_NO_BUFFERING attribute breakes unaligned writes, separate read/write hadnles ar needed with different attribtes
+        {
+            get; protected set;
+        }
+
+        public TestFile(string drivePath, bool read = false)
         {
             path = RamDiskUtil.GetTempFilePath(drivePath);
             folderPath = System.IO.Path.GetDirectoryName(path);
 
-            Stream = new FileStream(path, FileMode.Create, FileAccess.ReadWrite, FileShare.None, buffer, FileOptions.WriteThrough);
+            Stream = (ReadOnly = read) ? 
+                new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, buffer, (FileOptions)0x20000000/*FILE_FLAG_NO_BUFFERING*/) :
+                new FileStream(path, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, buffer, FileOptions.WriteThrough);
         }
 
         public void Dispose()
@@ -36,7 +43,7 @@ namespace Saplin.StorageSpeedMeter
 
             if (disposing) Stream.Dispose();
 
-            System.IO.File.Delete(path);
+            if (!ReadOnly) System.IO.File.Delete(path);
 
             disposed = true;
         }

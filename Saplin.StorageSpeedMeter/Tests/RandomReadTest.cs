@@ -7,7 +7,7 @@ namespace Saplin.StorageSpeedMeter
     {
         public RandomReadTest(FileStream file, int blockSize, int testTimeSecs = 30) : base(file, blockSize, testTimeSecs)
         {
-            PrerequsiteCleanup = true;
+            //PrerequsiteCleanup = true;
         }
 
         public override string Name { get => "Random read" + " [" + blockSize / 1024 + "Kb] block"; }
