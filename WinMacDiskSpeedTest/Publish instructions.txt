@@ -22,4 +22,4 @@ The instructions assume you are using .NET Core 2.0 or .NET Core daily builds. Y
 https://github.com/dotnet/core/blob/master/samples/linker-instructions.mddot
 
 
-dotnet publish C:\Dropbox\Projects\WinMacDiskSpeedTest\WinMacDiskSpeedTest.sln -c release -r win-x64 -o out_w64
+dotnet publish C:\Dropbox\Projects\NetCoreStorageSpeedTest.git\NetCoreStorageSpeedTest.sln -c release -r win-x64 -o out_w64

@@ -18,7 +18,6 @@ namespace Saplin.StorageSpeedMeter
         TestFile writeFile, readFile;  //FILE_FLAG_NO_BUFFERING attribute breakes unaligned writes, separate read/write hadnles ar needed with different attribtes
 
         private const long maxArraySize = 128 * 1024 * 1024; // 0.5Gb
-        private byte[][] holdMem;
 
         public BigTest(string drivePath)
         {
@@ -30,14 +29,6 @@ namespace Saplin.StorageSpeedMeter
 
             AddTest(new SequentialWriteTest(writeFile.Stream, bigBlockSize, bigBlocksNumber, true));
             AddTest(new SequentialReadTest(readFile.Stream, bigBlockSize, (long)(bigBlocksNumber * readFileToFullRatio)));
-            
-            //AddTest(new RandomReadTest(file.Stream, 256 * 1024, randomDuration));
-            //AddTest(new RandomWriteTest(file.Stream, 256 * 1024, randomDuration));
-            //AddTest(new RandomReadTest(file.Stream, 64 * 1024, randomDuration));
-            //AddTest(new RandomWriteTest(file.Stream, 64 * 1024, randomDuration));
-            //AddTest(new RandomReadTest(file.Stream, 8 * 1024, randomDuration));
-            //AddTest(new RandomWriteTest(file.Stream, 8 * 1024, randomDuration));
-
             AddTest(new RandomReadTest(readFile.Stream, 4 * 1024, randomDuration));
             AddTest(new RandomWriteTest(writeFile.Stream, 4 * 1024, randomDuration));
 

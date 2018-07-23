@@ -7,7 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="ComputerInfo" Version="0.1.0-prerelease" />
-    <PackageReference Include="ILLink.Tasks" Version="0.1.4-preview-981901" />
+    <PackageReference Include="ILLink.Tasks" Version="0.1.5-preview-1841731" />
   </ItemGroup>
 
   <ItemGroup>
