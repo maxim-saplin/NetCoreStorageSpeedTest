@@ -28,11 +28,11 @@ namespace Saplin.StorageSpeedMeter
             bigBlocksNumber = 1024*1024*1024/smallBlockSize;
             fileSize = bigBlocksNumber * bigBlockSize;
 
-            AddTest(new MemCopyTest(writeFile.Stream, 128*1024*1024, 12));
-            //AddTest(new SequentialWriteTest(writeFile.Stream, bigBlockSize, bigBlocksNumber, true));
-            //AddTest(new SequentialReadTest(readFile.Stream, bigBlockSize, (long)(bigBlocksNumber * readFileToFullRatio)));
-            //AddTest(new RandomReadTest(readFile.Stream, smallBlockSize, randomDuration));
-            //AddTest(new RandomWriteTest(writeFile.Stream, smallBlockSize, randomDuration));
+            AddTest(new SequentialWriteTest(writeFile.Stream, bigBlockSize, bigBlocksNumber, true));
+            AddTest(new SequentialReadTest(readFile.Stream, bigBlockSize, (long)(bigBlocksNumber * readFileToFullRatio)));
+            AddTest(new RandomReadTest(readFile.Stream, smallBlockSize, randomDuration));
+            AddTest(new RandomWriteTest(writeFile.Stream, smallBlockSize, randomDuration));
+            AddTest(new MemCopyTest(writeFile.Stream, 128 * 1024 * 1024, 12));
 
             SetUpRemainigCalculations();
         }
