@@ -16,23 +16,23 @@ namespace Saplin.StorageSpeedMeter
         long bigBlocksNumber;
         long fileSize;
 
-        TestFile writeFile, readFile;  //FILE_FLAG_NO_BUFFERING attribute breakes unaligned writes, separate read/write hadnles ar needed with different attribtes
+        TestFile file; 
 
         private const long maxArraySize = 128 * 1024 * 1024; // 0.5Gb
 
         public BigTest(string drivePath)
         {
 
-            writeFile = new TestFile(drivePath);
-            readFile = new TestFile(drivePath, true);
+            file = new TestFile(drivePath);
             bigBlocksNumber = 1024*1024*1024/ bigBlockSize;
             fileSize = bigBlocksNumber * bigBlockSize;
 
-            AddTest(new SequentialWriteTest(writeFile.Stream, bigBlockSize, bigBlocksNumber, true));
-            AddTest(new SequentialReadTest(readFile.Stream, bigBlockSize, (long)(bigBlocksNumber * readFileToFullRatio)));
-            AddTest(new RandomReadTest(readFile.Stream, smallBlockSize, randomDuration));
-            AddTest(new RandomWriteTest(writeFile.Stream, smallBlockSize, randomDuration));
-            AddTest(new MemCopyTest(writeFile.Stream, 128 * 1024 * 1024, 12));
+            AddTest(new SequentialWriteTest(file.WriteStream, bigBlockSize, bigBlocksNumber, true));
+            AddTest(new SequentialReadTest(file.ReadStream, bigBlockSize, (long)(bigBlocksNumber * readFileToFullRatio)));
+            AddTest(new RandomWriteTest(file.WriteStream, smallBlockSize, randomDuration));
+            AddTest(new RandomReadTest(file.ReadStream, smallBlockSize, randomDuration));
+
+            AddTest(new MemCopyTest(file.ReadStream/*hack, memcopy doesn't need file*/, 128 * 1024 * 1024, 12));
 
             SetUpRemainigCalculations();
         }
@@ -133,8 +133,7 @@ namespace Saplin.StorageSpeedMeter
 
             var results = base.Execute();
 
-            readFile.Dispose();
-            writeFile.Dispose();
+            file.Dispose();
 
             return results;
         }
@@ -172,7 +171,7 @@ namespace Saplin.StorageSpeedMeter
         {
             get
             {
-                return writeFile.Path;
+                return file.Path;
             }
         }
 
@@ -180,7 +179,7 @@ namespace Saplin.StorageSpeedMeter
         {
             get
             {
-                return writeFile.FolderPath;
+                return file.FolderPath;
             }
         }
 
@@ -188,7 +187,7 @@ namespace Saplin.StorageSpeedMeter
         {
             get
             {
-                return System.IO.Path.Combine(writeFile.FolderPath, "StorageSpeedTestResults");
+                return System.IO.Path.Combine(file.FolderPath, "StorageSpeedTestResults");
             }
         }
 

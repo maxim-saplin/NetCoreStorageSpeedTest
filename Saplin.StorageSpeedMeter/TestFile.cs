@@ -10,24 +10,23 @@ namespace Saplin.StorageSpeedMeter
         string path;
         string folderPath;
 
-        public FileStream Stream
+        public FileStream WriteStream
         {
             get;
         }
 
-        public bool ReadOnly //FILE_FLAG_NO_BUFFERING attribute breakes unaligned writes, separate read/write hadnles ar needed with different attribtes
+        public FileStream ReadStream//FILE_FLAG_NO_BUFFERING attribute breakes unaligned writes, separate read/write hadnles/stream ar needed with different CreateFile attribtes
         {
-            get; protected set;
+            get;
         }
 
-        public TestFile(string drivePath, bool read = false)
+        public TestFile(string drivePath)
         {
             path = RamDiskUtil.GetTempFilePath(drivePath);
             folderPath = System.IO.Path.GetDirectoryName(path);
 
-            Stream = (ReadOnly = read) ? 
-                new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, buffer, (FileOptions)0x20000000/*FILE_FLAG_NO_BUFFERING*/) :
-                new FileStream(path, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, buffer, FileOptions.WriteThrough);
+            WriteStream = new FileStream(path, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, buffer, FileOptions.WriteThrough);
+            ReadStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, buffer, (FileOptions)0x20000000/*FILE_FLAG_NO_BUFFERING*/);
         }
 
         public void Dispose()
@@ -41,9 +40,13 @@ namespace Saplin.StorageSpeedMeter
         {
             if (disposed) return;
 
-            if (disposing) Stream.Dispose();
+            if (disposing)
+            {
+                ReadStream.Dispose();
+                WriteStream.Dispose();
+            }
 
-            if (!ReadOnly) System.IO.File.Delete(path);
+            System.IO.File.Delete(path);
 
             disposed = true;
         }
