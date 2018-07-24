@@ -72,7 +72,7 @@ namespace Saplin.StorageSpeedMeter
 
             status = TestStatus.Started;
 
-            byte[] data = InitDataArray();
+            byte[] data = InitBuffer();
 
             HelloWorld();
 
@@ -136,7 +136,7 @@ namespace Saplin.StorageSpeedMeter
 
         protected abstract void DoOperation(byte[] data, Stopwatch sw, long currBlock, int i);
 
-        protected abstract byte[] InitDataArray();
+        protected abstract byte[] InitBuffer();
     }
 }
 

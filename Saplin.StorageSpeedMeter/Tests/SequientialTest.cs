@@ -25,7 +25,7 @@ namespace Saplin.StorageSpeedMeter
 
         public override TestResults Execute()
         {
-            byte[] data = InitTest();
+            byte[] data = InitBuffer();
 
             status = TestStatus.Started;
 
@@ -81,8 +81,8 @@ namespace Saplin.StorageSpeedMeter
             return results;
         }
 
-        protected abstract void DoOperation(byte[] data, Stopwatch sw);
+        protected abstract void DoOperation(byte[] buffer, Stopwatch sw);
 
-        protected abstract byte[] InitTest();
+        protected abstract byte[] InitBuffer();
     }
 }

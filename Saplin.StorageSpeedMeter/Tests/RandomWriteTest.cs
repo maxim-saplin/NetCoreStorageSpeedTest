@@ -27,7 +27,7 @@ namespace Saplin.StorageSpeedMeter
             sw.Stop();
         }
 
-        protected override byte[] InitDataArray()
+        protected override byte[] InitBuffer()
         {
             Update("Initilizing data in memory");
 

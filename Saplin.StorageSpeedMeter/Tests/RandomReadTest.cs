@@ -26,15 +26,15 @@ namespace Saplin.StorageSpeedMeter
             //minBlock = 0; 
         }
 
-        protected override void DoOperation(byte[] data, Stopwatch sw, long offsetBytes, int i)
+        protected override void DoOperation(byte[] buffer, Stopwatch sw, long offsetBytes, int i)
         {
             sw.Restart();
             file.Seek(offsetBytes, SeekOrigin.Begin);
-            file.Read(data, 0, blockSize);
+            file.Read(buffer, 0, blockSize);
             sw.Stop();
         }
 
-        protected override byte[] InitDataArray()
+        protected override byte[] InitBuffer()
         {
             return new byte[blockSize];
         }

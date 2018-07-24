@@ -7,7 +7,8 @@ namespace Saplin.StorageSpeedMeter
 {
     public class BigTest : TestSuite
     {
-        public const int bigBlockSize = 64 * 1024 * 1024;
+        public const int bigBlockSize = 4*1024;
+        public const int smallBlockSize = 4*1024;
         const double readFileToFullRatio = 1.0; // sequential read is executed only on a portion of file
         const double avgReadToWriteRatio = 1.1; // starting point for elapsed time estimation
         const int randomDuration = 20;
@@ -24,13 +25,14 @@ namespace Saplin.StorageSpeedMeter
 
             writeFile = new TestFile(drivePath);
             readFile = new TestFile(drivePath, true);
-            bigBlocksNumber = 10;
+            bigBlocksNumber = 1024*1024*1024/smallBlockSize;
             fileSize = bigBlocksNumber * bigBlockSize;
 
-            AddTest(new SequentialWriteTest(writeFile.Stream, bigBlockSize, bigBlocksNumber, true));
-            AddTest(new SequentialReadTest(readFile.Stream, bigBlockSize, (long)(bigBlocksNumber * readFileToFullRatio)));
-            AddTest(new RandomReadTest(readFile.Stream, 4 * 1024, randomDuration));
-            AddTest(new RandomWriteTest(writeFile.Stream, 4 * 1024, randomDuration));
+            AddTest(new MemCopyTest(writeFile.Stream, 128*1024*1024, 12));
+            //AddTest(new SequentialWriteTest(writeFile.Stream, bigBlockSize, bigBlocksNumber, true));
+            //AddTest(new SequentialReadTest(readFile.Stream, bigBlockSize, (long)(bigBlocksNumber * readFileToFullRatio)));
+            //AddTest(new RandomReadTest(readFile.Stream, smallBlockSize, randomDuration));
+            //AddTest(new RandomWriteTest(writeFile.Stream, smallBlockSize, randomDuration));
 
             SetUpRemainigCalculations();
         }
