@@ -26,7 +26,7 @@ namespace Saplin.StorageSpeedMeter
             folderPath = System.IO.Path.GetDirectoryName(path);
 
             Stream = (ReadOnly = read) ? 
-                new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, buffer, FileOptions.WriteThrough):// (FileOptions)0x20000000/*FILE_FLAG_NO_BUFFERING*/) :
+                new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, buffer, (FileOptions)0x20000000/*FILE_FLAG_NO_BUFFERING*/) :
                 new FileStream(path, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, buffer, FileOptions.WriteThrough);
         }
 
