@@ -29,7 +29,7 @@ namespace Saplin.StorageSpeedMeter
 
             if (RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX)) //mscOS
             {
-                
+            }
             else //Windows
             {
                 WriteStream = new FileStream(path, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, buffer, FileOptions.WriteThrough);

@@ -13,5 +13,5 @@ namespace Saplin.StorageSpeedMeter
             Syscall.fcntl((int)SafeFileHandle.DangerousGetHandle(), FcntlCommand.F_NOCACHE);
         }
     }
-    }
+
 }
