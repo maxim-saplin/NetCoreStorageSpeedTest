@@ -47,6 +47,7 @@
 
   <ItemGroup>
     <PackageReference Include="ComputerInfo" Version="0.1.0-prerelease" />
+    <PackageReference Include="Mono.Posix.NETStandard" Version="1.0.0" />
   </ItemGroup>
 
 </Project>

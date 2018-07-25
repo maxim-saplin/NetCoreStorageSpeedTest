@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.InteropServices;
+
 
 namespace Saplin.StorageSpeedMeter
 {
@@ -25,8 +27,14 @@ namespace Saplin.StorageSpeedMeter
             path = RamDiskUtil.GetTempFilePath(drivePath);
             folderPath = System.IO.Path.GetDirectoryName(path);
 
-            WriteStream = new FileStream(path, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, buffer, FileOptions.WriteThrough);
-            ReadStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, buffer, (FileOptions)0x20000000/*FILE_FLAG_NO_BUFFERING*/);
+            if (RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX)) //mscOS
+            {
+                
+            else //Windows
+            {
+                WriteStream = new FileStream(path, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, buffer, FileOptions.WriteThrough);
+                ReadStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, buffer, (FileOptions)0x20000000/*FILE_FLAG_NO_BUFFERING*/);
+            }
         }
 
         public void Dispose()
