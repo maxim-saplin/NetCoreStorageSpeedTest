@@ -52,6 +52,7 @@ namespace WinMacDiskSpeedTest
             try
             {
                 Console.WriteLine("STORAGE SPEED TEST\n");
+                WriteLineWordWrap("The test uses standrd OS's file API (WinAPI on Windows and POSIX on Mac) to measure the speed of transfer between storage device and system memory.");
                 Console.WriteLine("\nTotal RAM: {0:0.00}Gb, Available RAM: {1:0.00}Gb\n", (double)RamDiskUtil.TotalRam / 1024 / 1024 / 1024, (double)RamDiskUtil.FreeRam / 1024 / 1024 / 1024);
 
                 var drivePath = PickDrive(BigTest.FreeSpaceRequired);
