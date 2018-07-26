@@ -43,6 +43,7 @@
     <None Remove="out_w64\System.Threading.Overlapped.dll" />
     <None Remove="out_w64\System.Threading.Tasks.dll" />
     <None Remove="out_w64\System.Threading.dll" />
+    <None Remove=".gitignore" />
   </ItemGroup>
 
   <ItemGroup>

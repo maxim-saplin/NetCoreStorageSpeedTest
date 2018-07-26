@@ -38,14 +38,14 @@ namespace Saplin.StorageSpeedMeter
             }
         }
 
-        public static DriveInfo[] GetDrives()
+        public static DriveInfo[] GetEligibleDrives()
         {
             return DriveInfo.GetDrives()
                                       .Where(d => d.IsReady 
                                              && (d.DriveType == DriveType.Fixed
                                                                 || d.DriveType == DriveType.Removable
                                                                 || d.DriveType == DriveType.Unknown)  
-                                             && (!d.Name.Contains("/private/var/vm")) // macOS virtual drive
+                                             && (!d.Name.Contains("/private/var/vm") && !d.DriveFormat.Contains("osxfuse")) // macOS virtual drive
                                             ).ToArray();
         }
 

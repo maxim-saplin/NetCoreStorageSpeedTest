@@ -23,7 +23,7 @@ namespace Saplin.StorageSpeedMeter
         }
 
         protected TestStatus status = TestStatus.NotStarted;
-        
+
         protected void Update(string message, double? progressPercent = null)
         {
             StatusUpdate?.Invoke(this, new TestUpdateEventArgs(message, Status, progressPercent));
@@ -31,15 +31,23 @@ namespace Saplin.StorageSpeedMeter
 
         protected void FinalUpdate(TestResults results, long elapsedMs)
         {
-            Update(string.Format("Avg(N): {7:0.00}, Avg: {1:0.00}{0}, Mean: {2:0.00}, Min: {3:0.00}{0}, Max: {4:0.00}{0}, Time: {5}m{6:00}s",
-                results.Unit,
-                results.AvgThoughput,
-                results.Mean,
-                results.Min,
-                results.Max,
-                elapsedMs / 1000 / 60,
-                elapsedMs / 1000 % 60,
-                results.AvgThoughputNormalized));
+            //Update(string.Format("Avg(N): {7:0.00}, Avg: {1:0.00}{0}, Mean: {2:0.00}, Min: {3:0.00}{0}, Max: {4:0.00}{0}, Time: {5}m{6:00}s",
+            //results.Unit,
+            //results.AvgThoughput,
+            //results.Mean,
+            //results.Min,
+            //results.Max,
+            //elapsedMs / 1000 / 60,
+            //elapsedMs / 1000 % 60,
+            //results.AvgThoughputNormalized));
+
+            Update(string.Format("[{0}] Avg: {1:0.0}, Min÷Max: {2:0.0}÷{3:0.0}, Time: {4}m{5:00}s",
+            results.Unit,
+            results.AvgThoughput,
+            results.Min,
+            results.Max,
+            elapsedMs / 1000 / 60,
+            elapsedMs / 1000 % 60));
         }
 
         public void Break()

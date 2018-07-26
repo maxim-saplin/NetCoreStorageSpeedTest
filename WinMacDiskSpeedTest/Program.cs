@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace WinMacDiskSpeedTest
 {
@@ -11,7 +12,7 @@ namespace WinMacDiskSpeedTest
         {
             var i = 0;
 
-            var drives = RamDiskUtil.GetDrives();
+            var drives = RamDiskUtil.GetEligibleDrives();
 
             foreach (var d in drives)
             {
@@ -48,58 +49,68 @@ namespace WinMacDiskSpeedTest
 
         static void Main(string[] args)
         {
-            Console.WriteLine("STORAGE SPEED TEST\n");
-            Console.WriteLine("\nTotal RAM: {0:0.00}Gb, Available RAM: {1:0.00}Gb\n", (double)RamDiskUtil.TotalRam / 1024 / 1024 / 1024, (double)RamDiskUtil.FreeRam / 1024 / 1024 / 1024);
-
-            var drivePath = PickDrive(BigTest.FreeSpaceRequired);
-
-            if (drivePath == null) return;
-
-            var testSuite = new BigTest(drivePath);
-
-            Console.WriteLine("Test file: {0}, Size: {1:0.00}Gb\n\n Press ESC to break", testSuite.FilePath, (double)testSuite.FileSize / 1024 / 1024 / 1024);
-
-            string currentTest = null;
-            const int curCursor = 40;
-            var breakTest = false;
-
-            testSuite.StatusUpdate += (sender, e) =>
+            try
             {
-                if ((sender as Test).Name != currentTest)
+                Console.WriteLine("STORAGE SPEED TEST\n");
+                Console.WriteLine("\nTotal RAM: {0:0.00}Gb, Available RAM: {1:0.00}Gb\n", (double)RamDiskUtil.TotalRam / 1024 / 1024 / 1024, (double)RamDiskUtil.FreeRam / 1024 / 1024 / 1024);
+
+                var drivePath = PickDrive(BigTest.FreeSpaceRequired);
+
+                if (drivePath == null) return;
+
+                var testSuite = new BigTest(drivePath);
+
+                Console.WriteLine("Test file: {0}, Size: {1:0.00}Gb\n\n Press ESC to break", testSuite.FilePath, (double)testSuite.FileSize / 1024 / 1024 / 1024);
+
+                string currentTest = null;
+                const int curCursor = 40;
+                var breakTest = false;
+
+                testSuite.StatusUpdate += (sender, e) =>
                 {
-                    currentTest = (sender as Test).Name;
-                    Console.Write("\n{0}/{1} {2}", testSuite.CompletedTests + 1, testSuite.TotalTests, (sender as Test).Name);
-                    //Console.Write("\n{0:0.0}{1} {2}", RamDiskUtil.FreeRam/1024/1024/1024, "Gb", (sender as Test).Name);
-                }
+                    if ((sender as Test).Name != currentTest)
+                    {
+                        currentTest = (sender as Test).Name;
+                        Console.Write("\n{0}/{1} {2}", testSuite.CompletedTests + 1, testSuite.TotalTests, (sender as Test).Name);
+                    }
 
-                ClearLine(curCursor);
+                    ClearLine(curCursor);
 
-                if (e.ProgressPercent != null)
-                    Console.Write("{0}% {2} {1} ", e.ProgressPercent, e.Message, GetNextAnimation());
-                else Console.Write(e.Message);
+                    if (e.ProgressPercent != null)
+                        Console.Write("{0}% {2} {1} ", e.ProgressPercent, e.Message, GetNextAnimation());
+                    else Console.Write(e.Message);
 
-                if (Console.KeyAvailable && Console.ReadKey(true).Key == ConsoleKey.Escape)
+                    if (Console.KeyAvailable && Console.ReadKey(true).Key == ConsoleKey.Escape)
+                    {
+                        Console.WriteLine("Stopping...");
+                        testSuite.Break();
+                        breakTest = true;
+                    }
+
+                    ShowCounters(testSuite);
+                };
+
+                var results = testSuite.Execute();
+
+                if (!breakTest)
                 {
-                    Console.WriteLine("Stopping...");
-                    testSuite.Break();
-                    breakTest = true;
+                    Console.WriteLine("\n\tWrite Score: {0:0.00} MB/s,\t Read score: {1:0.00} MB/s", testSuite.WriteScore, testSuite.ReadScore);
+                    Console.WriteLine("\n\nTest file deleted.  Saving results to CSV files in folder: " + testSuite.ResultsFolderPath);
+                    testSuite.ExportToCsv(testSuite.ResultsFolderPath, true);
                 }
-
-                ShowCounters(testSuite);
-            };
-
-            var results = testSuite.Execute();
-
-            if (!breakTest)
+            }
+            catch(Exception ex)
             {
-                Console.WriteLine("\n\tWrite Score: {0:0.00} MB/s,\t Read score: {1:0.00} MB/s", testSuite.WriteScore, testSuite.ReadScore);
-                Console.WriteLine("\n\nTest file deleted.  Saving results to CSV files in folder: " + testSuite.ResultsFolderPath);
-                testSuite.ExportToCsv(testSuite.ResultsFolderPath, true);
+                Console.WriteLine("\nProgram interupted due to unexpected error:");
+                Console.WriteLine("\t" + ex.GetType() + " " + ex.Message);
             }
 
-            Console.WriteLine("\n\nAll Done! Press any key to quit");
 
-            Console.ReadKey();
+            if (!RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
+            {
+                Console.WriteLine("\nPress any key to quit");
+                Console.ReadKey();
+            }
         }
 
         private static void ClearLine(int cursorLeft)
@@ -128,12 +139,12 @@ namespace WinMacDiskSpeedTest
 
             if (prevElapsedSecs != elapsedSecs)
             {
-                var elapsed = string.Format("                     Elapsed time: {0:00}m {1:00}s", elapsedSecs / 60, elapsedSecs % 60);
+                var elapsed = string.Format("                          Elapsed time: {0:00}m {1:00}s", elapsedSecs / 60, elapsedSecs % 60);
                 Console.CursorLeft = Console.WindowWidth - elapsed.Length -1;
                 Console.CursorTop = 0;
                 Console.Write(elapsed);
 
-                var remaing = string.Format("                     Remaining time: {0:00}m {1:00}s", ts.RemainingMs / 1000 / 60, ts.RemainingMs / 1000 % 60);
+                var remaing = string.Format("                          Remaining time: {0:00}m {1:00}s", ts.RemainingMs / 1000 / 60, ts.RemainingMs / 1000 % 60);
                 Console.CursorLeft = Console.WindowWidth - remaing.Length -1;
                 Console.CursorTop = 1;
                 Console.Write(remaing);

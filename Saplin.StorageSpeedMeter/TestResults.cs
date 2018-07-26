@@ -9,7 +9,7 @@ namespace Saplin.StorageSpeedMeter
     public class TestResults : IEnumerable<double>, IEnumerable<Tuple<double, long>>
     {
         private int recalcCount = -1;
-        private double min, max, mean, avgThoughput, avgThoughputNormalized;
+        private double min, minN, max, maxN, mean, avgThoughput, avgThoughputNormalized;
         private long totalTimeMs;
 
         public long TotalTimeMs
@@ -43,6 +43,34 @@ namespace Saplin.StorageSpeedMeter
             protected set
             {
                 max = value;
+            }
+        }
+
+        public double MinN
+        {
+            get
+            {
+                Recalculate();
+
+                return minN;
+            }
+            protected set
+            {
+                minN = value;
+            }
+        }
+
+        public double MaxN
+        {
+            get
+            {
+                Recalculate();
+
+                return maxN;
+            }
+            protected set
+            {
+                maxN = value;
             }
         }
 
