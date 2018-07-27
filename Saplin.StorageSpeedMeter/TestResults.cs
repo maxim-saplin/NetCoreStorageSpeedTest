@@ -46,6 +46,9 @@ namespace Saplin.StorageSpeedMeter
             }
         }
 
+        /// <summary>
+        /// Normalized, excludes bottom 1% of values
+        /// </summary>
         public double MinN
         {
             get
@@ -60,6 +63,9 @@ namespace Saplin.StorageSpeedMeter
             }
         }
 
+        /// <summary>
+        /// Normalized, excludes top 1% of values
+        /// </summary>
         public double MaxN
         {
             get
@@ -163,8 +169,11 @@ namespace Saplin.StorageSpeedMeter
 
             if (recalcCount != results.Count)
             {
-                min = results.Min<double>(tr => tr);
-                max = results.Max<double>(tr => tr);
+                results.Sort();
+                min = results[0];
+                max = results[results.Count - 1];
+                minN = results[(int)(results.Count * .01)];
+                maxN = results[(int)(results.Count * 0.99)];
                 mean = results.Average<double>(tr => tr);
 
                 double inverseThroughputs = 0;// results.Select<double, double>(r => 1 / r).Sum();

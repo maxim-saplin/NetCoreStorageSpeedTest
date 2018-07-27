@@ -9,10 +9,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="out_osx64\**" />
     <Compile Remove="out_osx_min\**" />
     <Compile Remove="out_win_min\**" />
+    <EmbeddedResource Remove="out_osx64\**" />
     <EmbeddedResource Remove="out_osx_min\**" />
     <EmbeddedResource Remove="out_win_min\**" />
+    <None Remove="out_osx64\**" />
     <None Remove="out_osx_min\**" />
     <None Remove="out_win_min\**" />
     <None Remove="out_w64\ComputerInfo.dll" />

@@ -1,7 +1,6 @@
 ﻿using Saplin.StorageSpeedMeter;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace WinMacDiskSpeedTest
@@ -69,6 +68,9 @@ namespace WinMacDiskSpeedTest
 
                 testSuite.StatusUpdate += (sender, e) =>
                 {
+                    if (breakTest) return;
+                    if (e.Status == TestStatus.NotStarted) return;
+
                     if ((sender as Test).Name != currentTest)
                     {
                         currentTest = (sender as Test).Name;
@@ -77,15 +79,45 @@ namespace WinMacDiskSpeedTest
 
                     ClearLine(curCursor);
 
-                    if (e.ProgressPercent != null)
-                        Console.Write("{0}% {2} {1} ", e.ProgressPercent, e.Message, GetNextAnimation());
-                    else Console.Write(e.Message);
+                    if (e.Status != TestStatus.Completed)
+                    {
+                        switch (e.Status)
+                        {
+                            case TestStatus.Started:
+                                Console.Write("Started");
+                                break;
+                            case TestStatus.InitMemBuffer:
+                                Console.Write("Initializing test data in RAM...");
+                                break;
+                            case TestStatus.WarmigUp:
+                                Console.Write("Warming up...");
+                                break;
+                            case TestStatus.Interrupted:
+                                Console.Write("Test interrupted");
+                                break;
+                            case TestStatus.Running:
+                                Console.Write("{0}% {2} {1:0.0} MB/s", e.ProgressPercent, e.RecentResult, GetNextAnimation());
+                                break;
+                        }
+                    }
+                    else if ((e.Status == TestStatus.Completed) && (e.Results != null))
+                    {
+                        Console.Write(
+                            string.Format("[{0}] Avg: {1:0.0}, Min÷Max: {2:0.0}÷{3:0.0}, Time: {4}m{5:00}s",
+                            e.Results.Unit,
+                            e.Results.AvgThoughput,
+                            e.Results.Min,
+                            e.Results.Max,
+                            e.ElapsedMs / 1000 / 60,
+                            e.ElapsedMs / 1000 % 60)
+                        );
+                    }
 
                     if (Console.KeyAvailable && Console.ReadKey(true).Key == ConsoleKey.Escape)
                     {
-                        Console.WriteLine("Stopping...");
-                        testSuite.Break();
+                        Console.WriteLine("  Stopping...");
                         breakTest = true;
+                        testSuite.Break();
                     }
 
                     ShowCounters(testSuite);
@@ -95,12 +127,14 @@ namespace WinMacDiskSpeedTest
 
                 if (!breakTest)
                 {
-                    Console.WriteLine("\n\tWrite Score: {0:0.00} MB/s,\t Read score: {1:0.00} MB/s", testSuite.WriteScore, testSuite.ReadScore);
+                    Console.WriteLine("\n\nWrite Score: {0:0.00} MB/s", testSuite.WriteScore);
+                    Console.WriteLine("Read score: {0:0.00} MB/s", testSuite.ReadScore);
+                    Console.WriteLine("\t*Calculation: average throughput with 80% read/written seqentialy and 20% randomly");
                     Console.WriteLine("\n\nTest file deleted.  Saving results to CSV files in folder: " + testSuite.ResultsFolderPath);
                     testSuite.ExportToCsv(testSuite.ResultsFolderPath, true);
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine("\nProgram interupted due to unexpected error:");
                 Console.WriteLine("\t" + ex.GetType() + " " + ex.Message);
@@ -141,12 +175,12 @@ namespace WinMacDiskSpeedTest
             if (prevElapsedSecs != elapsedSecs)
             {
                 var elapsed = string.Format("                          Elapsed time: {0:00}m {1:00}s", elapsedSecs / 60, elapsedSecs % 60);
-                Console.CursorLeft = Console.WindowWidth - elapsed.Length -1;
+                Console.CursorLeft = Console.WindowWidth - elapsed.Length - 1;
                 Console.CursorTop = 0;
                 Console.Write(elapsed);
 
                 var remaing = string.Format("                          Remaining time: {0:00}m {1:00}s", ts.RemainingMs / 1000 / 60, ts.RemainingMs / 1000 % 60);
-                Console.CursorLeft = Console.WindowWidth - remaing.Length -1;
+                Console.CursorLeft = Console.WindowWidth - remaing.Length - 1;
                 Console.CursorTop = 1;
                 Console.Write(remaing);
 

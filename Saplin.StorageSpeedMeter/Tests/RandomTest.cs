@@ -18,8 +18,6 @@ namespace Saplin.StorageSpeedMeter
         protected long maxBlock; // max index of block accesible
         protected long minBlock;
 
-        public override string Name { get => "Random write" + " [" + blockSize / 1024 + "Kb] block"; }
-
         public RandomTest(FileStream file, int blockSize, int maxTestTimeSecs = 25)
         {
             if (percentOfFileToOwerwrite <= 0) throw new ArgumentOutOfRangeException("percentOfFileToOwerwrite", "Size of file to be overwritten (in percents of it's current size) must greater than 0");
@@ -70,11 +68,9 @@ namespace Saplin.StorageSpeedMeter
             ValidateAndInitParams();
             GeneratePositionsPlan();
 
-            status = TestStatus.Started;
+            Status = TestStatus.Started;
 
             byte[] data = InitBuffer();
-
-            HelloWorld();
 
             var sw = new Stopwatch();
             var results = new TestResults(Test.unitMbs, Name, blockSize);
@@ -88,9 +84,10 @@ namespace Saplin.StorageSpeedMeter
             var elapsed = new Stopwatch();
             elapsed.Start();
 
+            Status = TestStatus.Running;
+
             while (i < positionsPlan.Length + 1)
             {
-                //currBlock = rand.NextLong(minBlock, maxBlock +1) * blockSize;
                 currOffset = positionsPlan[i];
 
                 i++; // easier to calculate progress in precent when starting with 1
@@ -101,7 +98,6 @@ namespace Saplin.StorageSpeedMeter
 
                 if (breakCalled)
                 {
-                    Update("Test interrupted");
                     return results;
                 }
 
@@ -115,7 +111,7 @@ namespace Saplin.StorageSpeedMeter
 
                 if (curPercent > prevPercent)
                 {
-                    Update(string.Format("{0:0.00}{1}", results.GetLatest5MeanResult(), results.Unit), curPercent);
+                    Update(curPercent, results.GetLatest5MeanResult());
                     prevPercent = curPercent;
 
                     if (curPercent == 100) break;
@@ -125,14 +121,10 @@ namespace Saplin.StorageSpeedMeter
             elapsed.Stop();
             results.TotalTimeMs = elapsed.ElapsedMilliseconds;
 
-            status = TestStatus.Completed;
-
             FinalUpdate(results, elapsed.ElapsedMilliseconds);
 
             return results;
         }
-
-        protected abstract void HelloWorld();
 
         protected abstract void DoOperation(byte[] data, Stopwatch sw, long currBlock, int i);
 

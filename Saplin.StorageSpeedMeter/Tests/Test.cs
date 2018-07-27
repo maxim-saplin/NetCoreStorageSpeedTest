@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace Saplin.StorageSpeedMeter
 {
-    public enum TestStatus { NotStarted, Started, Completed, Interrupted };
+    public enum TestStatus { NotStarted, Started, InitMemBuffer, WarmigUp, Running, Completed, Interrupted };
 
     public abstract class Test
     {
@@ -22,38 +23,23 @@ namespace Saplin.StorageSpeedMeter
             get => prerequsiteCleanup; protected set => prerequsiteCleanup = value;
         }
 
-        protected TestStatus status = TestStatus.NotStarted;
+        private TestStatus status = TestStatus.NotStarted;
 
-        protected void Update(string message, double? progressPercent = null)
+        protected void Update(double? progressPercent = null, double? recentResult = null, long? elapsedMs = null, TestResults results = null)
         {
-            StatusUpdate?.Invoke(this, new TestUpdateEventArgs(message, Status, progressPercent));
+            StatusUpdate?.Invoke(this, new TestUpdateEventArgs(Status, progressPercent, recentResult, ElapsedMs, results));
         }
 
         protected void FinalUpdate(TestResults results, long elapsedMs)
         {
-            //Update(string.Format("Avg(N): {7:0.00}, Avg: {1:0.00}{0}, Mean: {2:0.00}, Min: {3:0.00}{0}, Max: {4:0.00}{0}, Time: {5}m{6:00}s",
-            //results.Unit,
-            //results.AvgThoughput,
-            //results.Mean,
-            //results.Min,
-            //results.Max,
-            //elapsedMs / 1000 / 60,
-            //elapsedMs / 1000 % 60,
-            //results.AvgThoughputNormalized));
-
-            Update(string.Format("[{0}] Avg: {1:0.0}, Min÷Max: {2:0.0}÷{3:0.0}, Time: {4}m{5:00}s",
-            results.Unit,
-            results.AvgThoughput,
-            results.Min,
-            results.Max,
-            elapsedMs / 1000 / 60,
-            elapsedMs / 1000 % 60));
+            status = TestStatus.Completed; // do not assign property to avoid unnecessary event firing, it will follow
+            Update(100, null, elapsedMs, results);
         }
 
         public void Break()
         {
             breakCalled = true;
-            status = TestStatus.Interrupted;
+            if ((status != TestStatus.NotStarted) && (status != TestStatus.NotStarted)) Status = TestStatus.Interrupted;
         }
 
         public TestStatus Status
@@ -65,7 +51,31 @@ namespace Saplin.StorageSpeedMeter
             protected internal set
             {
                 status = value;
+                //TestResults interimResults = status == TestStatus.Completed ? res
+                StatusUpdate?.Invoke(this, new TestUpdateEventArgs(status, null, null, ElapsedMs, null));
             }
+        }
+
+        private Stopwatch elapsedSw;
+
+        public long ElapsedMs
+        {
+            get
+            {
+                return elapsedSw == null ? 0 : elapsedSw.ElapsedMilliseconds;
+            }
+        }
+
+        protected void RestartStopwatch()
+        {
+            elapsedSw = new Stopwatch();
+            elapsedSw.Start();
+        }
+
+        protected long StopStopwatch()
+        {
+            elapsedSw.Stop();
+            return elapsedSw.ElapsedMilliseconds;
         }
     }
 }

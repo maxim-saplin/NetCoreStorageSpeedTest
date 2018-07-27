@@ -10,10 +10,7 @@ namespace Saplin.StorageSpeedMeter
         {
         }
 
-        protected override void HelloWorld()
-        {
-            Update(string.Format("Executing random write test, [{0}Kb] block", blockSize / 1024));
-        }
+        public override string Name { get => "Random write" + " [" + blockSize / 1024 + "KB] block"; }
 
         Random rand;
 
@@ -29,7 +26,9 @@ namespace Saplin.StorageSpeedMeter
 
         protected override byte[] InitBuffer()
         {
-            Update("Initilizing data in memory");
+            Status = TestStatus.InitMemBuffer;
+            
+            //Update("Initilizing data in memory");
 
             rand = new Random();
             var data = new byte[blockSize * blocksInMemory];

@@ -1,7 +1,6 @@
 ﻿using Mono.Unix.Native;
 using System.IO;
 
-
 namespace Saplin.StorageSpeedMeter
 {
     class MacOsUncachedFileStream : FileStream
@@ -11,5 +10,4 @@ namespace Saplin.StorageSpeedMeter
             Syscall.fcntl((int)SafeFileHandle.DangerousGetHandle(), FcntlCommand.F_NOCACHE); //diasble cache for alresdy open file stream
         }
     }
-
 }

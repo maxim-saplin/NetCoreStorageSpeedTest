@@ -8,7 +8,7 @@ namespace Saplin.StorageSpeedMeter
     {
         public SequentialWriteTest(FileStream file, int blockSize, long totalBlocks, bool warmUp) : base(file, blockSize, totalBlocks, warmUp) { }
 
-        public override string Name { get => "Sequential write" + " [" + blockSize / 1024 + "Kb] block"; }
+        public override string Name { get => "Sequential write" + " [" + blockSize / 1024 / 1024 + "MB] block"; }
 
         protected override void DoOperation(byte[] buffer, Stopwatch sw)
         {
@@ -22,7 +22,8 @@ namespace Saplin.StorageSpeedMeter
         {
             if (totalBlocks == 0) throw new ArgumentOutOfRangeException("totalBlocks", "Block number cant be 0");
 
-            Update("Initilizing data in memory");
+            Status = TestStatus.InitMemBuffer;
+            //Update("Initilizing data in memory");
 
             var buffer = new byte[blockSize];
             var rand = new Random();

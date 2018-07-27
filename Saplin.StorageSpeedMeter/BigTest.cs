@@ -8,15 +8,15 @@ namespace Saplin.StorageSpeedMeter
     public class BigTest : TestSuite
     {
         const long fileSize = 1024 * 1024 * 1024;
-        public const int bigBlockSize = 4*1024*1024;
-        public const int smallBlockSize = 4*1024;
+        public const int bigBlockSize = 4 * 1024 * 1024;
+        public const int smallBlockSize = 4 * 1024;
         const double readFileToFullRatio = 1.0; // sequential read is executed only on a portion of file
         const double avgReadToWriteRatio = 1.1; // starting point for elapsed time estimation
         const int randomDuration = 20;
-        
+
         long bigBlocksNumber;
 
-        TestFile file; 
+        TestFile file;
 
         private const long maxArraySize = 128 * 1024 * 1024; // 0.5Gb
 
@@ -141,27 +141,27 @@ namespace Saplin.StorageSpeedMeter
 
         protected override void PrerequisiteCleanup(int testIndex)
         {
-        //    var sw = new Stopwatch();
-        //    sw.Start();
+            //    var sw = new Stopwatch();
+            //    sw.Start();
 
-        //    var buff = new byte[bigBlockSize];
+            //    var buff = new byte[bigBlockSize];
 
-        //    var startPosition = file.Stream.Length * 3 / 4;
-        //    var blocks = file.Stream.Length / 4 / bigBlockSize;
+            //    var startPosition = file.Stream.Length * 3 / 4;
+            //    var blocks = file.Stream.Length / 4 / bigBlockSize;
 
-        //    file.Stream.Seek(startPosition, System.IO.SeekOrigin.Begin);
+            //    file.Stream.Seek(startPosition, System.IO.SeekOrigin.Begin);
 
-        //    while (blocks > 0)
-        //    {
-        //        file.Stream.Read(buff, 0, bigBlockSize);
-        //        blocks--;
-        //    }
+            //    while (blocks > 0)
+            //    {
+            //        file.Stream.Read(buff, 0, bigBlockSize);
+            //        blocks--;
+            //    }
 
 
-        //    base.PrerequisiteCleanup(testIndex);
+            //    base.PrerequisiteCleanup(testIndex);
 
-        //    sw.Stop();
-        //    cleanupTimeMs = sw.ElapsedMilliseconds;
+            //    sw.Stop();
+            //    cleanupTimeMs = sw.ElapsedMilliseconds;
         }
 
         public override long RemainingMs => remainingMs;
@@ -197,6 +197,10 @@ namespace Saplin.StorageSpeedMeter
         /// "Megabytes per second" balanced write score which composes random and sequential write speed. 
         /// </summary>
         /// <remarks>
+        /// The general rule for calculating this score is determining avergage write speed, where 80% of total traffic comes from sequential write and another 
+        /// 20% of trafics comes from random writes. In the default case, a test suite contains 1 sequential write test and 4 random write tests 
+        /// (blocks of 4, 8, 64 and 256 Kb). In this case, calculation assumes 80% traffics coming from sequqntial operation (at the speed of coresponding test)
+        /// and 5% from each of random write series at speeds, corresponding to measured speeds.
         /// Calculation. Assume 1Gb file is written sequentially at 0.1 Gb/s (10s). After a number of smaller blocks of size 4Kb are written on top
         /// of existing data at random positions within the original 1Gb, ammounting to a total of 0.5Gb. If average speed of writes is 0,01Gb/s,  the
         /// time to complete these random writes at 0.5/0.01=50 seconds. Thus far it took 10+50 = 60 seconds to write 1.5Gb to disk. Then there's another
@@ -205,10 +209,6 @@ namespace Saplin.StorageSpeedMeter
         /// will lead to maximizing score. On the other hand in reality random writes is chalenging for many drives (especially HDDs) and while sequential
         /// writes (e.g. video processing) can be fast, random writes (e.g. database writes, working with multiple files) demonstrate 10X and greater
         /// performance decline over sequntial operations.
-        /// The general rule for calculating this score is determining avergage write speed, where 80% of total traffi comes from sequential write and another 
-        /// 20% of trafics comes from random writes. In the default case, a test suite contains 1 sequential write test and 4 random write tests 
-        /// (blocks of 4, 8, 64 and 256 Kb). In this case, calculation assumes 80% traffics coming from sequqntial operation (at the speed of coresponding test)
-        /// and 5% from each of random write series at speeds, corresponding to measured speeds.
         /// </remarks>
         public override double WriteScore
         {
@@ -232,18 +232,18 @@ namespace Saplin.StorageSpeedMeter
         /// "Megabytes per second" balanced read score which composes random and sequential read speed. 
         /// </summary>
         /// <remarks>
-        /// Calculation. Assume a 1Gb file is read sequentially at 0.1 Gb/s (10s). After a number of smaller blocks of size 4Kb are read 
-        /// at random positions within the same 1Gb of file, ammounting to a total of 0.5Gb. If average speed of random reads is 0,01Gb/s, the
-        /// time to complete these reads is 0.5/0.01=50 seconds. Thus far it took 10+50 = 60 seconds to read 1.5Gb from disk to RAM. Then there's another
-        /// attempt to do reads of total size of 0.5Gb at 0.05Gb/s taking 10s. This gives us total time of 70 seconds reading 2Gb to RAM. Average speed 
-        /// in this case is 2Gb/70s = 0.029Gb/s. A perfect drive will have little differences between rnadom reads of small blocks and sequential reads which
-        /// will lead to maximal score. On the other hand in reality random reads is chalenging for many drives (especially HDDs) and while sequential
-        /// reads (e.g. video processing) can be fast, random reads (e.g. database queries, working with multiple files) demonstrate 10X and greater
+        /// The general rule for calculating this score is determining avergage write speed, where 80% of total traffic comes from sequential write and another 
+        /// 20% of trafics comes from random writes. In the default case, a test suite contains 1 sequential write test and 4 random write tests 
+        /// (blocks of 4, 8, 64 and 256 Kb). In this case, calculation assumes 80% traffics coming from sequqntial operation (at the speed of coresponding test)
+        /// and 5% from each of random write series at speeds, corresponding to measured speeds.
+        /// Calculation. Assume 1Gb file is written sequentially at 0.1 Gb/s (10s). After a number of smaller blocks of size 4Kb are written on top
+        /// of existing data at random positions within the original 1Gb, ammounting to a total of 0.5Gb. If average speed of writes is 0,01Gb/s,  the
+        /// time to complete these random writes at 0.5/0.01=50 seconds. Thus far it took 10+50 = 60 seconds to write 1.5Gb to disk. Then there's another
+        /// attempt to do writes of total size of 0.5Gb at 0.05Gb/s taking 10s. This gives us an total time of 70 seconds writing 2Gb to disk. Average speed 
+        /// in this case is 2Gb/70s = 0.029Gb/s. A perfect drive will have little differences between rnadom writes of small blocks and sequential writes which
+        /// will lead to maximizing score. On the other hand in reality random writes is chalenging for many drives (especially HDDs) and while sequential
+        /// writes (e.g. video processing) can be fast, random writes (e.g. database writes, working with multiple files) demonstrate 10X and greater
         /// performance decline over sequntial operations.
-        /// The general rule for calculating this score is determining avergage read speed, where 80% of total traffic comes from sequential read and another 
-        /// 20% of traffic comes from random reads. In the default case, a test suite contains 1 sequential read test and 4 random read tests 
-        /// (blocks of 4, 8, 64 and 256 Kb). In this case, calculation assumes 80% traffic coming from sequqntial operation (at the speed of coresponding test)
-        /// and 5% from each of random read series at speeds, corresponding to measured speeds.
         /// </remarks>
         public override double ReadScore
         {
@@ -286,7 +286,7 @@ namespace Saplin.StorageSpeedMeter
             const double sizeSeq = 800;
             const double sizeRand = 200;
             var randomTests = tests.Count<Test>(t => t.GetType() == randomTest);
-            
+
             for (var i = 0; i < tests.Count; i++)
             {
                 if (tests[i].GetType() == sequentialTest)

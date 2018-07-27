@@ -2,7 +2,6 @@
 using System.IO;
 using System.Runtime.InteropServices;
 
-
 namespace Saplin.StorageSpeedMeter
 {
     public class TestFile : IDisposable
