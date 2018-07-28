@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Saplin.StorageSpeedMeter
 {
-    public class BigTest : TestSuite
+    public class BigTest : TestSuite, IDisposable
     {
         const long fileSize = 1024 * 1024 * 1024;
         public const int bigBlockSize = 4 * 1024 * 1024;
@@ -141,27 +141,6 @@ namespace Saplin.StorageSpeedMeter
 
         protected override void PrerequisiteCleanup(int testIndex)
         {
-            //    var sw = new Stopwatch();
-            //    sw.Start();
-
-            //    var buff = new byte[bigBlockSize];
-
-            //    var startPosition = file.Stream.Length * 3 / 4;
-            //    var blocks = file.Stream.Length / 4 / bigBlockSize;
-
-            //    file.Stream.Seek(startPosition, System.IO.SeekOrigin.Begin);
-
-            //    while (blocks > 0)
-            //    {
-            //        file.Stream.Read(buff, 0, bigBlockSize);
-            //        blocks--;
-            //    }
-
-
-            //    base.PrerequisiteCleanup(testIndex);
-
-            //    sw.Stop();
-            //    cleanupTimeMs = sw.ElapsedMilliseconds;
         }
 
         public override long RemainingMs => remainingMs;
@@ -310,6 +289,21 @@ namespace Saplin.StorageSpeedMeter
         private void ValidateTestsForScores()
         {
             if (tests.Any<Test>(t => t.Status != TestStatus.Completed)) throw new InvalidOperationException("Cant't calculate agregate score on a test suite with not all tests completed");
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                file?.Dispose();
+            }
         }
     }
 }

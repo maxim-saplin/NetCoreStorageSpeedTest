@@ -46,13 +46,15 @@ namespace WinMacDiskSpeedTest
             return drives[index].Name;
         }
 
+
+
         static void Main(string[] args)
         {
             try
             {
                 Console.WriteLine("STORAGE SPEED TEST\n");
 
-                Console.ForegroundColor = ConsoleColor.Gray;
+                Console.ForegroundColor = ConsoleColor.DarkGray;
                 Console.WriteLine("Total RAM: {0:0.00}Gb, Available RAM: {1:0.00}Gb\n", (double)RamDiskUtil.TotalRam / 1024 / 1024 / 1024, (double)RamDiskUtil.FreeRam / 1024 / 1024 / 1024);
                 WriteLineWordWrap("The test uses standrd OS's file API (WinAPI on Windows and POSIX on Mac) to measure the speed of transfer between storage device and system memory.\n");
                 Console.ResetColor();
@@ -63,89 +65,93 @@ namespace WinMacDiskSpeedTest
 
                 var testSuite = new BigTest(drivePath);
 
-                Console.WriteLine("Test file: {0}, Size: {1:0.00}Gb\n\n Press ESC to break", testSuite.FilePath, (double)testSuite.FileSize / 1024 / 1024 / 1024);
-
-                string currentTest = null;
-                const int curCursor = 40;
-                var breakTest = false;
-
-                testSuite.StatusUpdate += (sender, e) =>
+                using (testSuite)
                 {
-                    if (breakTest) return;
-                    if (e.Status == TestStatus.NotStarted) return;
 
-                    if ((sender as Test).Name != currentTest)
+                    Console.WriteLine("Test file: {0}, Size: {1:0.00}Gb\n\n Press ESC to break", testSuite.FilePath, (double)testSuite.FileSize / 1024 / 1024 / 1024);
+
+                    string currentTest = null;
+                    const int curCursor = 40;
+                    var breakTest = false;
+
+                    testSuite.StatusUpdate += (sender, e) =>
                     {
-                        currentTest = (sender as Test).Name;
-                        Console.Write("\n{0}/{1} {2}", testSuite.CompletedTests + 1, testSuite.TotalTests, (sender as Test).Name);
-                    }
+                        if (breakTest) return;
+                        if (e.Status == TestStatus.NotStarted) return;
 
-                    ClearLine(curCursor);
-
-                    if (e.Status != TestStatus.Completed)
-                    {
-                        Console.ForegroundColor = ConsoleColor.Gray;
-                        switch (e.Status)
+                        if ((sender as Test).Name != currentTest)
                         {
-                            case TestStatus.Started:
-                                Console.Write("Started");
-                                break;
-                            case TestStatus.InitMemBuffer:
-                                Console.Write("Initializing test data in RAM...");
-                                break;
-                            case TestStatus.WarmigUp:
-                                Console.Write("Warming up...");
-                                break;
-                            case TestStatus.Interrupted:
-                                Console.Write("Test interrupted");
-                                break;
-                            case TestStatus.Running:
-                                Console.Write("{0}% {2} {1:0.0} MB/s", e.ProgressPercent, e.RecentResult, GetNextAnimation());
-                                break;
+                            currentTest = (sender as Test).Name;
+                            Console.Write("\n{0}/{1} {2}", testSuite.CompletedTests + 1, testSuite.TotalTests, (sender as Test).Name);
                         }
-                        Console.ResetColor();
-                    }
-                    else if ((e.Status == TestStatus.Completed) && (e.Results != null))
+
+                        ClearLine(curCursor);
+
+                        if (e.Status != TestStatus.Completed)
+                        {
+                            Console.ForegroundColor = ConsoleColor.DarkGray;
+                            switch (e.Status)
+                            {
+                                case TestStatus.Started:
+                                    Console.Write("Started");
+                                    break;
+                                case TestStatus.InitMemBuffer:
+                                    Console.Write("Initializing test data in RAM...");
+                                    break;
+                                case TestStatus.WarmigUp:
+                                    Console.Write("Warming up...");
+                                    break;
+                                case TestStatus.Interrupted:
+                                    Console.Write("Test interrupted");
+                                    break;
+                                case TestStatus.Running:
+                                    Console.Write("{0}% {2} {1:0.0} MB/s", e.ProgressPercent, e.RecentResult, GetNextAnimation());
+                                    break;
+                            }
+                            Console.ResetColor();
+                        }
+                        else if ((e.Status == TestStatus.Completed) && (e.Results != null))
+                        {
+                            Console.Write(
+                                string.Format("Avg: {1:0.0}{0}\t",
+                                e.Results.Unit,
+                                e.Results.AvgThoughput)
+                            );
+
+                            Console.ForegroundColor = ConsoleColor.DarkGray;
+                            Console.Write(
+                                string.Format(" Min÷Max: {1:0.0} ÷ {2:0.0}, Time: {3}m{4:00}s",
+                                e.Results.Unit,
+                                e.Results.Min,
+                                e.Results.Max,
+                                e.ElapsedMs / 1000 / 60,
+                                e.ElapsedMs / 1000 % 60)
+                            );
+                            Console.ResetColor();
+                        }
+
+                        if (Console.KeyAvailable && Console.ReadKey(true).Key == ConsoleKey.Escape)
+                        {
+                            Console.WriteLine("  Stopping...");
+                            breakTest = true;
+                            testSuite.Break();
+                        }
+
+                        ShowCounters(testSuite);
+                    };
+
+                    var results = testSuite.Execute();
+
+                    if (!breakTest)
                     {
-                        Console.Write(
-                            string.Format("Avg: {1:0.0}{0}\t",
-                            e.Results.Unit,
-                            e.Results.AvgThoughput)
-                        );
-
-                        Console.ForegroundColor = ConsoleColor.Gray;
-                        Console.Write(
-                            string.Format(" Min÷Max: {1:0.0} ÷ {2:0.0}, Time: {3}m{4:00}s",
-                            e.Results.Unit,
-                            e.Results.Min,
-                            e.Results.Max,
-                            e.ElapsedMs / 1000 / 60,
-                            e.ElapsedMs / 1000 % 60)
-                        );
+                        Console.WriteLine("\n\nWrite Score*:\t {0:0.00} MB/s", testSuite.WriteScore);
+                        Console.WriteLine("Read Score*:\t {0:0.00} MB/s", testSuite.ReadScore);
+                        Console.ForegroundColor = ConsoleColor.DarkGray;
+                        Console.WriteLine("*Calculation: average throughput with 80% read/written seqentialy and 20% randomly");
                         Console.ResetColor();
+                        Console.WriteLine("\nTest file deleted.  Saving results to CSV files in folder: " + testSuite.ResultsFolderPath);
+                        testSuite.ExportToCsv(testSuite.ResultsFolderPath, true);
                     }
-
-                    if (Console.KeyAvailable && Console.ReadKey(true).Key == ConsoleKey.Escape)
-                    {
-                        Console.WriteLine("  Stopping...");
-                        breakTest = true;
-                        testSuite.Break();
-                    }
-
-                    ShowCounters(testSuite);
-                };
-
-                var results = testSuite.Execute();
-
-                if (!breakTest)
-                {
-                    Console.WriteLine("\n\nWrite Score*:\t {0:0.00} MB/s", testSuite.WriteScore);
-                    Console.WriteLine("Read Score*:\t {0:0.00} MB/s", testSuite.ReadScore);
-                    Console.ForegroundColor = ConsoleColor.Gray;
-                    Console.WriteLine("*Calculation: average throughput with 80% read/written seqentialy and 20% randomly");
-                    Console.ResetColor();
-                    Console.WriteLine("\nTest file deleted.  Saving results to CSV files in folder: " + testSuite.ResultsFolderPath);
-                    testSuite.ExportToCsv(testSuite.ResultsFolderPath, true);
                 }
             }
             catch (Exception ex)
@@ -153,7 +159,6 @@ namespace WinMacDiskSpeedTest
                 Console.WriteLine("\nProgram interupted due to unexpected error:");
                 Console.WriteLine("\t" + ex.GetType() + " " + ex.Message);
             }
-
 
             if (!RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
             {
@@ -186,7 +191,7 @@ namespace WinMacDiskSpeedTest
             var top = Console.CursorTop;
             var elapsedSecs = ts.ElapsedMs / 1000;
 
-            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.ForegroundColor = ConsoleColor.DarkGray;
             if (prevElapsedSecs != elapsedSecs)
             {
                 var elapsed = string.Format("                          Elapsed: {0:00}m {1:00}s", elapsedSecs / 60, elapsedSecs % 60);
