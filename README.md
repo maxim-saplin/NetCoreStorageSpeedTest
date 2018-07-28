@@ -1,5 +1,5 @@
 # NetCoreStorageSpeedTest
-Console Application (tested on Windows and MacOS) and a cross-platform Class Library (C#, .NET Standard 2.0) for measuring read/write speeds of disks/storage devices.
+Console Application (tested on Windows and MacOS) and a cross-platform Class Library C#, .NET Core 2.1) for measuring read/write speeds of disks/storage devices.
 
 # Download Binaries
 Of console apps at the relase section: https://github.com/maxim-saplin/NetCoreStorageSpeedTest/releases
