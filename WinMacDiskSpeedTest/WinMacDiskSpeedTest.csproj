@@ -3,13 +3,16 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.1</TargetFramework>
-    <Version>1.1.2</Version>
+    <Version>1.1.3</Version>
     <ReleaseVersion>1.1.1</ReleaseVersion>
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="out_w32\**" />
     <Compile Remove="out_w64\**" />
+    <EmbeddedResource Remove="out_w32\**" />
     <EmbeddedResource Remove="out_w64\**" />
+    <None Remove="out_w32\**" />
     <None Remove="out_w64\**" />
   </ItemGroup>
 

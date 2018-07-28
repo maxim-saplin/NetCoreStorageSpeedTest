@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
-    <Version>1.1.2</Version>
+    <Version>1.1.3</Version>
     <ReleaseVersion>1.1.1</ReleaseVersion>
   </PropertyGroup>
 
@@ -13,41 +13,19 @@
   <ItemGroup>
     <Compile Remove="out_osx64\**" />
     <Compile Remove="out_osx_min\**" />
+    <Compile Remove="out_w32\**" />
+    <Compile Remove="out_w64\**" />
     <Compile Remove="out_win_min\**" />
     <EmbeddedResource Remove="out_osx64\**" />
     <EmbeddedResource Remove="out_osx_min\**" />
+    <EmbeddedResource Remove="out_w32\**" />
+    <EmbeddedResource Remove="out_w64\**" />
     <EmbeddedResource Remove="out_win_min\**" />
     <None Remove="out_osx64\**" />
     <None Remove="out_osx_min\**" />
+    <None Remove="out_w32\**" />
+    <None Remove="out_w64\**" />
     <None Remove="out_win_min\**" />
-    <None Remove="out_w64\ComputerInfo.dll" />
-    <None Remove="out_w64\Microsoft.DotNet.PlatformAbstractions.dll" />
-    <None Remove="out_w64\Microsoft.Win32.Registry.dll" />
-    <None Remove="out_w64\Saplin.StorageSpeedMeter.deps.json" />
-    <None Remove="out_w64\Saplin.StorageSpeedMeter.dll" />
-    <None Remove="out_w64\Saplin.StorageSpeedMeter.pdb" />
-    <None Remove="out_w64\System.AppContext.dll" />
-    <None Remove="out_w64\System.Collections.dll" />
-    <None Remove="out_w64\System.Globalization.dll" />
-    <None Remove="out_w64\System.IO.FileSystem.Primitives.dll" />
-    <None Remove="out_w64\System.IO.FileSystem.dll" />
-    <None Remove="out_w64\System.IO.dll" />
-    <None Remove="out_w64\System.Reflection.Primitives.dll" />
-    <None Remove="out_w64\System.Reflection.TypeExtensions.dll" />
-    <None Remove="out_w64\System.Reflection.dll" />
-    <None Remove="out_w64\System.Resources.ResourceManager.dll" />
-    <None Remove="out_w64\System.Runtime.Extensions.dll" />
-    <None Remove="out_w64\System.Runtime.Handles.dll" />
-    <None Remove="out_w64\System.Runtime.InteropServices.RuntimeInformation.dll" />
-    <None Remove="out_w64\System.Runtime.InteropServices.dll" />
-    <None Remove="out_w64\System.Runtime.dll" />
-    <None Remove="out_w64\System.Security.AccessControl.dll" />
-    <None Remove="out_w64\System.Security.Principal.Windows.dll" />
-    <None Remove="out_w64\System.Text.Encoding.Extensions.dll" />
-    <None Remove="out_w64\System.Text.Encoding.dll" />
-    <None Remove="out_w64\System.Threading.Overlapped.dll" />
-    <None Remove="out_w64\System.Threading.Tasks.dll" />
-    <None Remove="out_w64\System.Threading.dll" />
     <None Remove=".gitignore" />
   </ItemGroup>
 

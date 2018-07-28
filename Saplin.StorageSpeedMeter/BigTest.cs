@@ -33,7 +33,12 @@ namespace Saplin.StorageSpeedMeter
 
             SetUpRemainigCalculations();
 
-            AddTest(new MemCopyTest(file.ReadStream/*hack, memcopy doesn't need file*/, 128 * 1024 * 1024, 12));
+            var memCopyBlocks = 6;
+            const int memCopyBlockSize = 128 * 1024 * 1024;
+            if (Environment.Is64BitProcess) memCopyBlocks = 12;
+
+            if (RamDiskUtil.FreeRam > memCopyBlockSize*(memCopyBlocks+2))
+                AddTest(new MemCopyTest(file.ReadStream/*hack, memcopy doesn't need file*/, memCopyBlockSize, memCopyBlocks));
         }
 
         long remainingMs;

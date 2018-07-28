@@ -122,8 +122,8 @@ namespace WinMacDiskSpeedTest
                             Console.Write(
                                 string.Format(" Min÷Max: {1:0.0} ÷ {2:0.0}, Time: {3}m{4:00}s",
                                 e.Results.Unit,
-                                e.Results.Min,
-                                e.Results.Max,
+                                e.Results.MinN,
+                                e.Results.MaxN,
                                 e.ElapsedMs / 1000 / 60,
                                 e.ElapsedMs / 1000 % 60)
                             );
@@ -158,6 +158,7 @@ namespace WinMacDiskSpeedTest
             {
                 Console.WriteLine("\nProgram interupted due to unexpected error:");
                 Console.WriteLine("\t" + ex.GetType() + " " + ex.Message);
+                Console.WriteLine(ex.StackTrace);
             }
 
             if (!RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
