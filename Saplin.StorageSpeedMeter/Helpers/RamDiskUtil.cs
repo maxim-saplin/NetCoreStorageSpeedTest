@@ -1,5 +1,5 @@
-﻿using NickStrupat;
-using System;
+﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -9,13 +9,53 @@ namespace Saplin.StorageSpeedMeter
 {
     public class RamDiskUtil
     {
-        private static ComputerInfo ci;
+        internal struct MemStatus
+        {
+            internal UInt32 dwLength;
+            internal UInt32 dwMemoryLoad;
+            internal UInt64 ullTotalPhys;
+            internal UInt64 ullAvailPhys;
+            internal UInt64 ullTotalPageFile;
+            internal UInt64 ullAvailPageFile;
+            internal UInt64 ullTotalVirtual;
+            internal UInt64 ullAvailVirtual;
+            internal UInt64 ullAvailExtendedVirtual;
+        }
+
+        [DllImport("Kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        internal static extern Boolean GlobalMemoryStatusEx(ref MemStatus lpBuffer);
+
+        private static MemStatus memStatus = new MemStatus();
+
+        private static void UpdateWindowsMemStatus()
+        {
+            if (!GlobalMemoryStatusEx(ref memStatus)) throw new Win32Exception("Error getting Windows memory info");
+        }
+
+        private static IntPtr lineSizeSize = (IntPtr)IntPtr.Size;
+
+        public static UInt64 GetSysCtlIntegerByName(String name)
+        {
+            sysctlbyname(name, out var lineSize, ref lineSizeSize, IntPtr.Zero, IntPtr.Zero);
+            return (UInt64)lineSize.ToInt64();
+        }
+        
+        [DllImport("libc")]
+        private static extern Int32 sysctlbyname(String name, out IntPtr oldp, ref IntPtr oldlenp, IntPtr newp, IntPtr newlen);
 
         static RamDiskUtil()
         {
-            ci = new ComputerInfo();
-
-            TotalRam = (long)ci.TotalPhysicalMemory;
+            if (RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+            {
+                memStatus.dwLength = checked((UInt32)Marshal.SizeOf(typeof(MemStatus)));
+                UpdateWindowsMemStatus();
+                TotalRam = (long)memStatus.ullTotalPhys;
+            }
+            else if (RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
+            {
+                TotalRam = (long)GetSysCtlIntegerByName("hw.memsize");
+            }
         }
 
         public const string fileName = "WinMacDiskSpeedTest_TestFile.dat";
@@ -30,7 +70,10 @@ namespace Saplin.StorageSpeedMeter
             get
             {
                 if (RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
-                    return (long)ci.AvailablePhysicalMemory;
+                {
+                    UpdateWindowsMemStatus();
+                    return (long)memStatus.ullAvailPhys;
+                }
 
                 var totalMemUsed = Process.GetProcesses().AsQueryable<Process>().Select<Process, long>(p => p.WorkingSet64).Sum();
 
