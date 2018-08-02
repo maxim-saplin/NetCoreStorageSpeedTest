@@ -23,3 +23,4 @@ https://github.com/dotnet/core/blob/master/samples/linker-instructions.mddot
 
 
 dotnet publish C:\Dropbox\Projects\NetCoreStorageSpeedTest.git\NetCoreStorageSpeedTest.sln -c release -r win-x64 -o out_w64
+dotnet publish /Users/user/Projects/NetCoreStorageSpeedTest.git/NetCoreStorageSpeedTest.sln -c release -r osx-x64 -o out_osx64 -f netcoreapp2.1

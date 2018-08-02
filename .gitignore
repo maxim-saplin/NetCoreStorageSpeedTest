@@ -286,8 +286,8 @@ __pycache__/
 *.btm.cs
 *.odx.cs
 *.xsd.cs
-/Saplin.StorageSpeedMeter/out_osx64
-/Saplin.StorageSpeedMeter/out_w64
-/WinMacDiskSpeedTest/out_w64
-/Saplin.StorageSpeedMeter/out_w32
-/WinMacDiskSpeedTest/out_w32
+
+out_osx64/
+out_w64/
+out_w32/
+
