@@ -12,5 +12,5 @@ To add the repository go to "Tools -> Options -> NuGet Package Manager -> Packag
 
 macOS - IL Linker might fail to copy libMonoPosixHelper.dylib from Saplin.StorageSpeedMeter project's output to console app's outpu - do it manually
 
-#Tests of 2018 MacBook Pro SSD
+# Tests of 2018 MacBook Pro SSD
 macOS, Windows Bootcamp, Windows VM - http://saplin.blogspot.com/2018/07/2018-15-macbook-pro-ssd-benchmark-macos.html
