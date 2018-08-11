@@ -7,7 +7,7 @@ namespace Saplin.StorageSpeedMeter
 {
     public class BigTest : TestSuite, IDisposable
     {
-        const long fileSize = 1024 * 1024 * 1024;
+        public readonly long fileSize;
         public const int bigBlockSize = 4 * 1024 * 1024;
         public const int smallBlockSize = 4 * 1024;
         const double readFileToFullRatio = 1.0; // sequential read is executed only on a portion of file
@@ -20,10 +20,14 @@ namespace Saplin.StorageSpeedMeter
 
         private const long maxArraySize = 128 * 1024 * 1024; // 0.5Gb
 
-        public BigTest(string drivePath)
+        public BigTest(string drivePath) : this(drivePath, 1024 * 1024 * 1024)
         {
+        }
 
+        public BigTest(string drivePath, long fileSize)
+        {
             file = new TestFile(drivePath);
+            this.fileSize = fileSize;
             bigBlocksNumber = fileSize / bigBlockSize;
 
             AddTest(new SequentialWriteTest(file.WriteStream, bigBlockSize, bigBlocksNumber, true));

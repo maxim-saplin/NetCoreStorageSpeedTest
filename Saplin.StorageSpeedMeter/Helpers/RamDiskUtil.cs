@@ -9,6 +9,8 @@ namespace Saplin.StorageSpeedMeter
 {
     public class RamDiskUtil
     {
+        
+#region Windows Memory Status
         internal struct MemStatus
         {
             internal UInt32 dwLength;
@@ -32,13 +34,47 @@ namespace Saplin.StorageSpeedMeter
         {
             if (!GlobalMemoryStatusEx(ref memStatus)) throw new Win32Exception("Error getting Windows memory info");
         }
+#endregion
 
-        private static IntPtr lineSizeSize = (IntPtr)IntPtr.Size;
+        //struct vmtotal
+        //{
+        //    short t_rq;     /* length of the run queue */
+        //    short t_dw;     /* jobs in ``disk wait'' (neg priority) */
+        //    short t_pw;     /* jobs in page wait */
+        //    short t_sl;     /* jobs sleeping in core */
+        //    short t_sw;     /* swapped out runnable/short block jobs */
+        //    long t_vm;      /* total virtual memory */
+        //    long t_avm;     /* active virtual memory */
+        //    long t_rm;      /* total real memory in use */
+        //    long t_arm;     /* active real memory */
+        //    long t_vmshr;   /* shared virtual memory */
+        //    long t_avmshr;  /* active shared virtual memory */
+        //    long t_rmshr;   /* shared real memory */
+        //    long t_armshr;  /* active shared real memory */
+        //    long t_free;        /* free memory pages */
+        //};
+
+        //private static IntPtr vmtotalSize;
+
+        //private static vmtotal GetSysCtlVmTotal()
+        //{
+        //    vmtotalSize = (IntPtr)Marshal.SizeOf(typeof(vmtotal));
+        //    IntPtr vmtotalPtr = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(vmtotal)));
+
+        //    var result = sysctlbyname("vm.vmtotal", out vmtotalPtr, ref vmtotalSize, IntPtr.Zero, IntPtr.Zero);
+
+        //    var vmtotal = (vmtotal)Marshal.PtrToStructure(vmtotalPtr, typeof(vmtotal)); 
+
+        //    return vmtotal;
+        //}
+
+        private static IntPtr sysCtlIntSize = (IntPtr)IntPtr.Size;
 
         public static UInt64 GetSysCtlIntegerByName(String name)
         {
-            sysctlbyname(name, out var lineSize, ref lineSizeSize, IntPtr.Zero, IntPtr.Zero);
-            return (UInt64)lineSize.ToInt64();
+            IntPtr sysCtlInt;
+            sysctlbyname(name, out sysCtlInt, ref sysCtlIntSize, IntPtr.Zero, IntPtr.Zero);
+            return (UInt64)sysCtlInt.ToInt64();
         }
         
         [DllImport("libc")]
