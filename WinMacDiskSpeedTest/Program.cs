@@ -10,14 +10,21 @@ namespace WinMacDiskSpeedTest
         private static string PickDrive(long freeSpace)
         {
             var i = 0;
+            var k = 0;
 
             var drives = RamDiskUtil.GetEligibleDrives();
+            var driveIndexes = new int[drives.Length];
 
             foreach (var d in drives)
             {
                 var flag = false;
 
-                if (d.TotalFreeSpace < freeSpace) flag = true; else i++;
+                if (d.TotalFreeSpace < freeSpace) flag = true; 
+                else 
+                {
+                    driveIndexes[i] = k;
+                    i++;    
+                }
 
                 Console.WriteLine(
                     "[{0}] {1} {2:0.00} Gb free {3}",
@@ -26,6 +33,8 @@ namespace WinMacDiskSpeedTest
                         (double)d.TotalFreeSpace / 1024 / 1024 / 1024,
                         flag ? "- insufficient free space" : ""
                         );
+
+                k++;
             }
 
             Console.Write("- please pick drive to test: ");
@@ -41,9 +50,7 @@ namespace WinMacDiskSpeedTest
                 if (!Int32.TryParse(input, out index)) index = -1;
             } while ((index < 1) || (index > i));
 
-            index--;
-
-            return drives[index].Name;
+            return drives[driveIndexes[--index]].Name;
         }
 
 
@@ -56,14 +63,16 @@ namespace WinMacDiskSpeedTest
 
                 Console.ForegroundColor = ConsoleColor.DarkGray;
                 Console.WriteLine("Total RAM: {0:0.00}Gb, Available RAM: {1:0.00}Gb\n", (double)RamDiskUtil.TotalRam / 1024 / 1024 / 1024, (double)RamDiskUtil.FreeRam / 1024 / 1024 / 1024);
-                WriteLineWordWrap("The test uses standrd OS's file API (WinAPI on Windows and POSIX on Mac) to measure the speed of transfer between storage device and system memory.\n");
+                WriteLineWordWrap("The test uses standrd OS's file API (WinAPI on Windows and POSIX on Mac) to measure the speed of transfer between storage device and system memory.\n Device's write buffer is enabled\n");
                 Console.ResetColor();
 
-                var drivePath = PickDrive(BigTest.FreeSpaceRequired);
+                const long fileSize = 1024 * 1024 * 1024;
+
+                var drivePath = PickDrive(fileSize);
 
                 if (drivePath == null) return;
 
-                var testSuite = new BigTest(drivePath);
+                var testSuite = new BigTest(drivePath, fileSize);
 
                 using (testSuite)
                 {

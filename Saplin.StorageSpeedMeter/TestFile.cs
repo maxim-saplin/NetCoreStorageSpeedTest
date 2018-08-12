@@ -21,19 +21,24 @@ namespace Saplin.StorageSpeedMeter
             get;
         }
 
-        public TestFile(string drivePath)
+        /// <summary>
+        /// Opens write streams to test file and prepares the stream for tests (e.g. disabling OS file cache, disabling device's write buffers)
+        /// </summary>
+        /// <param name="drivePath">Drive to test and store the temp file, the contructor attempts to find user folder in case system drive is selected and writing to rout is resricted</param>
+        /// <param name="writeThrough">If set to <c>true</c> FileOptions.WriteThrough is used when creating System.IO.FileStream - whether to use write buffering or not</param>
+        public TestFile(string drivePath, bool writeThrough = false)
         {
             path = RamDiskUtil.GetTempFilePath(drivePath);
             folderPath = System.IO.Path.GetDirectoryName(path);
 
-            if (RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX)) //mscOS
+            if (RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX)) //macOS
             {
-                WriteStream = new MacOsUncachedFileStream(path, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, buffer, FileOptions.None);
+                WriteStream = new MacOsUncachedFileStream(path, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, buffer, writeThrough ? FileOptions.WriteThrough : FileOptions.None);
                 ReadStream = new MacOsUncachedFileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, buffer, FileOptions.None);
             }
             else //Windows
             {
-                WriteStream = new FileStream(path, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, buffer, FileOptions.WriteThrough);
+                WriteStream = new FileStream(path, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, buffer, writeThrough ? FileOptions.WriteThrough : FileOptions.None);
                 ReadStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, buffer, (FileOptions)0x20000000/*FILE_FLAG_NO_BUFFERING*/);
             }
         }

@@ -259,14 +259,6 @@ namespace Saplin.StorageSpeedMeter
             }
         }
 
-        public static long FreeSpaceRequired
-        {
-            get
-            {
-                return (long)(RamDiskUtil.TotalRam * 1.0);
-            }
-        }
-
         private double CalculateScore(Type sequentialTest, Type randomTest)
         {
             var timesAndSizes = new List<Tuple<double, double>>(); //seconds and megabytes
