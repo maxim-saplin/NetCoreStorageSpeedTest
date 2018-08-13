@@ -37,6 +37,9 @@ namespace Saplin.StorageSpeedMeter
             return tests;
         }
 
+        /// <summary>
+        /// If calling from different thread (not within EventHandler within threaed used to run Execute method), you should wait for Execute method to return
+        /// </summary>
         public virtual void Break()
         {
             breakCalled = true;
