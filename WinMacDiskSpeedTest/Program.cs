@@ -72,7 +72,7 @@ namespace WinMacDiskSpeedTest
 
                 if (drivePath == null) return;
 
-                var testSuite = new BigTest(drivePath, fileSize);
+                var testSuite = new BigTest(drivePath, fileSize, false);
 
                 using (testSuite)
                 {

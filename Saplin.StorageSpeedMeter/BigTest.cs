@@ -10,7 +10,7 @@ namespace Saplin.StorageSpeedMeter
         public readonly long fileSize;
         public const int bigBlockSize = 4 * 1024 * 1024;
         public const int smallBlockSize = 4 * 1024;
-        const double readFileToFullRatio = 1.0; // sequential read is executed only on a portion of file
+        const double readFileToFullRatio = 1.0; // sequential read can be executed only on a portion of file
         const double avgReadToWriteRatio = 1.1; // starting point for elapsed time estimation
         const int randomDuration = 20;
 
@@ -20,13 +20,16 @@ namespace Saplin.StorageSpeedMeter
 
         private const long maxArraySize = 128 * 1024 * 1024; // 0.5Gb
 
-        public BigTest(string drivePath) : this(drivePath, 1024 * 1024 * 1024)
+        /// <summary>
+        /// Test suite of 2 sequential and 2 random tests
+        /// </summary>
+        /// <param name="drivePath">Drive name</param>
+        /// <param name="fileSize">Test file size, default is 1Gb</param>
+        /// <param name="writeThrough">Faster writes through buffering</param>
+        /// <param name="enambleMemCache">Faster reads through File Cache</param>
+        public BigTest(string drivePath, long fileSize = 1024 * 1024 * 1024, bool writeThrough = true, bool enambleMemCache = false)
         {
-        }
-
-        public BigTest(string drivePath, long fileSize)
-        {
-            file = new TestFile(drivePath);
+            file = new TestFile(drivePath, writeThrough, enambleMemCache);
             this.fileSize = fileSize;
             bigBlocksNumber = fileSize / bigBlockSize;
 
@@ -42,7 +45,7 @@ namespace Saplin.StorageSpeedMeter
             if (Environment.Is64BitProcess) memCopyBlocks = 12;
 
             if (RamDiskUtil.FreeRam > memCopyBlockSize*(memCopyBlocks+2))
-                AddTest(new MemCopyTest(file.ReadStream/*hack, memcopy doesn't need file*/, memCopyBlockSize, memCopyBlocks));
+                AddTest(new MemCopyTest(file.ReadStream/*hack, memcopy doesn't actually need file and stream is not used*/, memCopyBlockSize, memCopyBlocks));
         }
 
         long remainingMs;
