@@ -309,5 +309,12 @@ namespace Saplin.StorageSpeedMeter
                 file?.Dispose();
             }
         }
+
+        //public override void Break()
+        //{
+        //    base.Break();
+
+        //    Dispose();
+        //}
     }
 }

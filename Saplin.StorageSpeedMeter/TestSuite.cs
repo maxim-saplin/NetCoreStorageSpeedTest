@@ -37,7 +37,7 @@ namespace Saplin.StorageSpeedMeter
             return tests;
         }
 
-        public void Break()
+        public virtual void Break()
         {
             breakCalled = true;
 

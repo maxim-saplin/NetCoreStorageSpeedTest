@@ -44,6 +44,11 @@ namespace Saplin.StorageSpeedMeter
             if (warmUp) Status = TestStatus.WarmigUp; else Status = TestStatus.Running;
             for (var i = 1 - warmUpBlocks; i < totalBlocks + 1; i++)
             {
+                if (breakCalled)
+                {
+                    return results;
+                }
+
                 DoOperation(data, sw);
 
                 if (i == 0) // final warm up block
@@ -57,16 +62,9 @@ namespace Saplin.StorageSpeedMeter
 
                     results.AddTroughputMbs(blockSize, file.Position - blockSize, sw);
 
-                    if (breakCalled)
-                    {
-                        //Update("Test interrupted");
-                        return results;
-                    }
-
                     curPercent = (int)(i * 100 / totalBlocks);
                     if (curPercent > prevPercent)
                     {
-                        //Update(string.Format("{0:0.00}{1}", results.GetLatestResult(), results.Unit), curPercent);
                         Update(curPercent, results.GetLatest5MeanResult());
                         prevPercent = curPercent;
                     }

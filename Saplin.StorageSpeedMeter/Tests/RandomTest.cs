@@ -88,6 +88,11 @@ namespace Saplin.StorageSpeedMeter
 
             while (i < positionsPlan.Length + 1)
             {
+                if (breakCalled)
+                {
+                    return results;
+                }
+
                 currOffset = positionsPlan[i];
 
                 i++; // easier to calculate progress in precent when starting with 1
@@ -95,11 +100,6 @@ namespace Saplin.StorageSpeedMeter
                 DoOperation(data, sw, currOffset, i);
 
                 results.AddTroughputMbs(blockSize, currOffset, sw);
-
-                if (breakCalled)
-                {
-                    return results;
-                }
 
                 curPercent = Math.Min(
                     100, 
