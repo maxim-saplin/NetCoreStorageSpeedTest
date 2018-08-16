@@ -67,6 +67,11 @@ namespace Saplin.StorageSpeedMeter
             disposed = true;
         }
 
+        ~TestFile()
+        {
+            Dispose(false);
+        }
+
         public string Path
         {
             get

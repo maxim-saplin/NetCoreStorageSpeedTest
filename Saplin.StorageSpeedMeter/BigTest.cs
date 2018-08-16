@@ -310,6 +310,11 @@ namespace Saplin.StorageSpeedMeter
             }
         }
 
+        ~BigTest()
+        {
+            Dispose(false);
+        }
+
         //public override void Break()
         //{
         //    base.Break();
