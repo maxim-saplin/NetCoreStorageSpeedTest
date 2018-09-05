@@ -27,9 +27,9 @@ namespace Saplin.StorageSpeedMeter
         /// <param name="fileSize">Test file size, default is 1Gb</param>
         /// <param name="writeThrough">Faster writes through buffering</param>
         /// <param name="enambleMemCache">Faster reads through File Cache</param>
-        public BigTest(string drivePath, long fileSize = 1024 * 1024 * 1024, bool writeThrough = false, bool enableMemCache = false)
+        public BigTest(string drivePath, long fileSize = 1024 * 1024 * 1024, bool writeThrough = false, bool enableMemCache = false, string filePath = null)
         {
-            file = new TestFile(drivePath, writeThrough, enableMemCache);
+            file = new TestFile(drivePath, writeThrough, enableMemCache, filePath);
             this.fileSize = fileSize;
             bigBlocksNumber = fileSize / bigBlockSize;
 

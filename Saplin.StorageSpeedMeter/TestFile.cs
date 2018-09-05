@@ -26,9 +26,9 @@ namespace Saplin.StorageSpeedMeter
         /// </summary>
         /// <param name="drivePath">Drive to test and store the temp file, the contructor attempts to find user folder in case system drive is selected and writing to rout is resricted</param>
         /// <param name="enableWriteThrough">If set to <c>true</c> FileOptions.WriteThrough is used when creating System.IO.FileStream - whether to use write buffering or not</param>
-        public TestFile(string drivePath, bool enableWriteThrough = false, bool enableMemCache = false)
+        public TestFile(string drivePath, bool enableWriteThrough = false, bool enableMemCache = false, string filePath = null)
         {
-            path = RamDiskUtil.GetTempFilePath(drivePath);
+            path = string.IsNullOrEmpty(filePath) ? RamDiskUtil.GetTempFilePath(drivePath) : filePath;
             folderPath = System.IO.Path.GetDirectoryName(path);
 
             if (RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX)) //macOS
@@ -38,7 +38,7 @@ namespace Saplin.StorageSpeedMeter
                     enableMemCache);
                 ReadStream = new MacOsUncachedFileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, buffer, FileOptions.None, enableMemCache);
             }
-            else //Windows
+            else //Windows and rest
             {
                 WriteStream = new FileStream(path, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, buffer, enableWriteThrough ? FileOptions.WriteThrough : FileOptions.None);
                 ReadStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, buffer, enableMemCache ? FileOptions.None : (FileOptions)0x20000000/*FILE_FLAG_NO_BUFFERING*/);

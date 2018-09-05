@@ -94,7 +94,7 @@ namespace Saplin.StorageSpeedMeter
             }
         }
 
-        public const string fileName = "WinMacDiskSpeedTest_TestFile.dat";
+        public const string fileName = "CPDT_TestFile.dat";
 
         public static long TotalRam
         {
