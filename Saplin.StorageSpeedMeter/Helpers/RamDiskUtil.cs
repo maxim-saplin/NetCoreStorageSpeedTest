@@ -124,7 +124,7 @@ namespace Saplin.StorageSpeedMeter
                                              && (d.DriveType == DriveType.Fixed
                                                                 || d.DriveType == DriveType.Removable
                                                                 || d.DriveType == DriveType.Unknown)  
-                                             && (!d.Name.Contains("/private/var/vm") && !d.DriveFormat.Contains("osxfuse")) // macOS virtual drive
+                                             && (!d.Name.Contains("/private/var/vm")) // macOS virtual drive
                                             ).ToArray();
         }
 
