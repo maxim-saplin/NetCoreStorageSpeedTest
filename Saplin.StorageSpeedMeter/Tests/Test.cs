@@ -27,7 +27,7 @@ namespace Saplin.StorageSpeedMeter
 
         protected void Update(double? progressPercent = null, double? recentResult = null, long? elapsedMs = null, TestResults results = null)
         {
-            StatusUpdate?.Invoke(this, new TestUpdateEventArgs(Status, progressPercent, recentResult, ElapsedMs, results));
+            StatusUpdate?.Invoke(this, new TestUpdateEventArgs(Status, progressPercent, recentResult, elapsedMs, results));
         }
 
         protected void FinalUpdate(TestResults results, long elapsedMs)
