@@ -10,8 +10,11 @@ namespace Saplin.StorageSpeedMeter
         public const string unitMbs = "MB/s";
 
         public abstract TestResults Execute();
-        public abstract string Name { get; }
+        public abstract string DisplayName { get; }
         public event EventHandler<TestUpdateEventArgs> StatusUpdate;
+        protected int blockSize;
+
+        public int BlockSizeBytes { get { return blockSize; } }
 
         protected bool breakCalled = false;
 

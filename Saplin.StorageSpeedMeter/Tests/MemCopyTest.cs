@@ -15,7 +15,7 @@ namespace Saplin.StorageSpeedMeter
             dst = new int[blockSize * totalBlocks / sizeof(int)];
         }
 
-        public override string Name { get => "Memory copy" + " [" + blockSize / 1024 / 1024 + "MB] block"; }
+        public override string DisplayName { get => "Memory copy" + " [" + blockSize / 1024 / 1024 + "MB] block"; }
 
         protected override void DoOperation(byte[] buffer, Stopwatch sw)
         {

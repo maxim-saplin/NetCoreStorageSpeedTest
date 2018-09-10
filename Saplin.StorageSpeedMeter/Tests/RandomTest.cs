@@ -10,7 +10,7 @@ namespace Saplin.StorageSpeedMeter
         private const int maxBlocksInTest = 1 * 1024 * 1024; // 8 Mb for shuffled positions
 
         protected readonly FileStream file;
-        protected readonly int blockSize;
+        
         protected readonly double? percentOfFileToOwerwrite;
         protected readonly int? maxTestTime;
         protected readonly int blocksInMemory;
@@ -73,7 +73,7 @@ namespace Saplin.StorageSpeedMeter
             byte[] data = InitBuffer();
 
             var sw = new Stopwatch();
-            var results = new TestResults(Test.unitMbs, Name, blockSize);
+            var results = new TestResults(this);
 
             int prevPercent = -1;
             int curPercent = -1;

@@ -53,7 +53,7 @@ namespace WinMacDiskSpeedTest
             return drives[driveIndexes[--index]].Name;
         }
 
-
+        public const string unit = "MB/s";
 
         static void Main(string[] args)
         {
@@ -88,10 +88,10 @@ namespace WinMacDiskSpeedTest
                         if (breakTest) return;
                         if (e.Status == TestStatus.NotStarted) return;
 
-                        if ((sender as Test).Name != currentTest)
+                        if ((sender as Test).DisplayName != currentTest)
                         {
-                            currentTest = (sender as Test).Name;
-                            Console.Write("\n{0}/{1} {2}", testSuite.CompletedTests + 1, testSuite.TotalTests, (sender as Test).Name);
+                            currentTest = (sender as Test).DisplayName;
+                            Console.Write("\n{0}/{1} {2}", testSuite.CompletedTests + 1, testSuite.TotalTests, (sender as Test).DisplayName);
                         }
 
                         ClearLine(curCursor);
@@ -123,14 +123,14 @@ namespace WinMacDiskSpeedTest
                         {
                             Console.Write(
                                 string.Format("Avg: {1:0.0}{0}\t",
-                                e.Results.Unit,
+                                unit,
                                 e.Results.AvgThoughput)
                             );
 
                             Console.ForegroundColor = ConsoleColor.DarkGray;
                             Console.Write(
                                 string.Format(" Min÷Max: {1:0.0} ÷ {2:0.0}, Time: {3}m{4:00}s",
-                                e.Results.Unit,
+                                unit,
                                 e.Results.MinN,
                                 e.Results.MaxN,
                                 e.ElapsedMs / 1000 / 60,

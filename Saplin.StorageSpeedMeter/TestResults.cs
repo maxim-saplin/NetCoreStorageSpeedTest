@@ -6,11 +6,34 @@ using System.Linq;
 
 namespace Saplin.StorageSpeedMeter
 {
+    /// <summary>
+    /// All units are MB/s until stated differently
+    /// </summary>
     public class TestResults : IEnumerable<double>, IEnumerable<Tuple<double, long>>
-    {
+    { 
         private int recalcCount = -1;
         private double min, minN, max, maxN, mean, avgThoughput, avgThoughputNormalized;
         private long totalTimeMs;
+
+        const int intialCapacity = 300000; //enough to store results on 64k block reads within 16Gig file
+        List<double> results;
+        List<long> positions;
+        public string TestDisplayName { get; }
+        public long BlockSizeBytes { get; }
+
+        public TestResults(Test test)
+        {
+            results = new List<double>(intialCapacity);
+            positions = new List<long>();
+            TestDisplayName = test.DisplayName;
+            BlockSizeBytes = test.BlockSizeBytes;
+            Name = test.GetType().ToString();
+            Test = test;
+        }
+
+        public Test Test { get; private set; }
+
+        public string Name { get; private set; }
 
         public long TotalTimeMs
         {
@@ -135,7 +158,7 @@ namespace Saplin.StorageSpeedMeter
         {
             get
             {
-                return BlockSize * results.Count;
+                return BlockSizeBytes * results.Count;
             }
         }
 
@@ -145,22 +168,6 @@ namespace Saplin.StorageSpeedMeter
             {
                 return positions.Count == results.Count;
             }
-        }
-
-        const int intialCapacity = 300000; //enough to store results on 64k block reads within 16Gig file
-        List<double> results;
-        List<long> positions;
-        public string Unit { get; }
-        public string TestName { get; }
-        public long BlockSize { get; }
-
-        public TestResults(string unit, string testName, long blockSize)
-        {
-            results = new List<double>(intialCapacity);
-            positions = new List<long>();
-            Unit = unit;
-            TestName = testName;
-            BlockSize = blockSize;
         }
 
         private void Recalculate()

@@ -108,7 +108,7 @@ namespace Saplin.StorageSpeedMeter
                 {
                     if (r != null)
                     {
-                        fileName = string.Format(rawResultsFile, r.TestName, now);
+                        fileName = string.Format(rawResultsFile, r.TestDisplayName, now);
                         fileName = Path.GetInvalidFileNameChars().Aggregate(fileName, (current, c) => current.Replace(c.ToString(), string.Empty));
 
                         SaveRawResults(folderPath, fileName, separator, r);
@@ -136,7 +136,7 @@ namespace Saplin.StorageSpeedMeter
                     if (r != null)
                         stream.WriteLine("{1}{0}{2}{0}{3:s}{0}{4}{0}{5}{0}{6}{0}{7}{0}{8}{0}{9}{0}{10}{0}{11}{0}{12}{0}{13}{0}",
                             separator,
-                            r.TestName,
+                            r.TestDisplayName,
                             Directory.GetDirectoryRoot(folderPath),
                             now,
                             r.AvgThoughputNormalized,
@@ -145,7 +145,7 @@ namespace Saplin.StorageSpeedMeter
                             r.Min,
                             r.Max,
                             r.TotalTimeMs / 1000,
-                            r.BlockSize,
+                            r.BlockSizeBytes,
                             r.TotalTraffic / 1024 / 1024,
                             Environment.OSVersion,
                             Environment.MachineName

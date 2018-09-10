@@ -11,7 +11,7 @@ namespace Saplin.StorageSpeedMeter
             
         }
 
-        public override string Name { get => "Sequential read" + " [" + blockSize / 1024 / 1024 + "MB] block"; }
+        public override string DisplayName { get => "Sequential read" + " [" + blockSize / 1024 / 1024 + "MB] block"; }
 
         protected override void DoOperation(byte[] buffer, Stopwatch sw)
         {

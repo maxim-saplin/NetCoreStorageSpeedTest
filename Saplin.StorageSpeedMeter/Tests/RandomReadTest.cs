@@ -9,7 +9,7 @@ namespace Saplin.StorageSpeedMeter
         {
         }
 
-        public override string Name { get => "Random read" + " [" + blockSize / 1024 + "KB] block"; }
+        public override string DisplayName { get => "Random read" + " [" + blockSize / 1024 + "KB] block"; }
 
         protected override void ValidateAndInitParams()
         {

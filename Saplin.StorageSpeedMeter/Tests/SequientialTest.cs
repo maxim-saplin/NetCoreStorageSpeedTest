@@ -7,7 +7,6 @@ namespace Saplin.StorageSpeedMeter
     public abstract class SequentialTest : Test
     {
         protected readonly FileStream file;
-        protected readonly int blockSize;
         protected long totalBlocks;
         protected bool warmUp;
         protected readonly double warmUpBlocksPercentFromTotal = 0.05;
@@ -32,7 +31,7 @@ namespace Saplin.StorageSpeedMeter
             //Update("Executing sequential read test");
 
             var sw = new Stopwatch();
-            var results = new TestResults(Test.unitMbs, Name, blockSize);
+            var results = new TestResults(this);
 
             int prevPercent = -1;
             int curPercent = -1;
