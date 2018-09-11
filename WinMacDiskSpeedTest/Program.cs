@@ -124,7 +124,7 @@ namespace WinMacDiskSpeedTest
                             Console.Write(
                                 string.Format("Avg: {1:0.0}{0}\t",
                                 unit,
-                                e.Results.AvgThoughput)
+                                e.Results.AvgThroughput)
                             );
 
                             Console.ForegroundColor = ConsoleColor.DarkGray;

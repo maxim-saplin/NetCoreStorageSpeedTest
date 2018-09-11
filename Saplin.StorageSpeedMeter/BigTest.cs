@@ -274,12 +274,12 @@ namespace Saplin.StorageSpeedMeter
             {
                 if (tests[i].GetType() == sequentialTest)
                 {
-                    throughput = results[i].AvgThoughputNormalized;
+                    throughput = results[i].AvgThroughputNormalized;
                     timesAndSizes.Add(new Tuple<double, double>(sizeSeq / throughput, sizeSeq));
                 }
                 else if (tests[i].GetType() == randomTest)
                 {
-                    throughput = results[i].AvgThoughputNormalized;
+                    throughput = results[i].AvgThroughputNormalized;
                     timesAndSizes.Add(new Tuple<double, double>(sizeRand / randomTests / throughput, sizeRand / randomTests));
                 }
             }

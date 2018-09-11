@@ -12,7 +12,7 @@ namespace Saplin.StorageSpeedMeter
     public class TestResults : IEnumerable<double>, IEnumerable<Tuple<double, long>>
     { 
         private int recalcCount = -1;
-        private double min, minN, max, maxN, mean, avgThoughput, avgThoughputNormalized;
+        private double min, minN, max, maxN, mean, avgThroughput, avgThroughputNormalized;
         private long totalTimeMs;
 
         const int intialCapacity = 300000; //enough to store results on 64k block reads within 16Gig file
@@ -120,17 +120,17 @@ namespace Saplin.StorageSpeedMeter
         /// <summary>
         /// // Average throughput is not equal to mean of all thoughput measure and is calculated assuming that average equals to Total Traffic over Total Time
         /// </summary>
-        public double AvgThoughput
+        public double AvgThroughput
         {
             get
             {
                 Recalculate();
 
-                return avgThoughput;
+                return avgThroughput;
             }
             protected set
             {
-                avgThoughput = value;
+                avgThroughput = value;
             }
         }
 
@@ -140,17 +140,17 @@ namespace Saplin.StorageSpeedMeter
         /// number of measurements where 20 - 200x higher than average. As a rule of thumb, the following conditions rule out  cached resuls:
         /// Max is 24x or more times higher than average, only values that are below 1.1 average are used for normalized trhoughput calculation
         /// </summary>
-        public double AvgThoughputNormalized
+        public double AvgThroughputNormalized
         {
             get
             {
                 Recalculate();
 
-                return avgThoughputNormalized;
+                return avgThroughputNormalized;
             }
             protected set
             {
-                avgThoughputNormalized = value;
+                avgThroughputNormalized = value;
             }
         }
 
@@ -190,20 +190,20 @@ namespace Saplin.StorageSpeedMeter
                 foreach (var r in results)
                     inverseThroughputs += 1 / r;
 
-                avgThoughput = results.Count / inverseThroughputs; // AvgThougput = [TotalTrafic] / [TotalTime] ___OR___ [Number of thoughput measures] / SUM OF [1 / (Nth throughput measure)]
+                avgThroughput = results.Count / inverseThroughputs; // AvgThougput = [TotalTrafic] / [TotalTime] ___OR___ [Number of thoughput measures] / SUM OF [1 / (Nth throughput measure)]
 
-                if (avgThoughput < max / 20) // More actual for HDD 
+                if (avgThroughput < max / 20) // More actual for HDD 
                 {
                     foreach (var r in results)
-                        if (r < avgThoughput * 10)
+                        if (r < avgThroughput * 10)
                         {
                             inverseNormThroughputs += 1 / r;
                             inverseNormCount++;
                         }
 
-                    avgThoughputNormalized = inverseNormCount / inverseNormThroughputs;
+                    avgThroughputNormalized = inverseNormCount / inverseNormThroughputs;
                 }
-                else avgThoughputNormalized = avgThoughput;
+                else avgThroughputNormalized = avgThroughput;
 
                 recalcCount = results.Count;
             }
