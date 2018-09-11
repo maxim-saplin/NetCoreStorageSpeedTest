@@ -27,7 +27,7 @@ namespace Saplin.StorageSpeedMeter
             positions = new List<long>();
             TestDisplayName = test.DisplayName;
             BlockSizeBytes = test.BlockSizeBytes;
-            TestName = test.GetType().Name;
+            TestName = test.Name;
             Test = test;
         }
 

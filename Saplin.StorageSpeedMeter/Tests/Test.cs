@@ -11,6 +11,7 @@ namespace Saplin.StorageSpeedMeter
 
         public abstract TestResults Execute();
         public abstract string DisplayName { get; }
+        public string Name { get; set; }
         public event EventHandler<TestUpdateEventArgs> StatusUpdate;
         protected int blockSize;
 
@@ -60,6 +61,11 @@ namespace Saplin.StorageSpeedMeter
         }
 
         private Stopwatch elapsedSw;
+
+        protected Test()
+        {
+            Name = this.GetType().Name;
+        }
 
         public long ElapsedMs
         {
