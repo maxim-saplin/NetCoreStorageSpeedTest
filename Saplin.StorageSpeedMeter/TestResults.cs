@@ -28,10 +28,10 @@ namespace Saplin.StorageSpeedMeter
             TestDisplayName = test.DisplayName;
             BlockSizeBytes = test.BlockSizeBytes;
             TestName = test.Name;
-            Test = test;
+            TestType = test.GetType();
         }
 
-        public Test Test { get; private set; }
+        public Type TestType { get; private set; }
 
         public string TestName { get; private set; }
 
