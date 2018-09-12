@@ -65,10 +65,10 @@ namespace Saplin.StorageSpeedMeter
 
         public override TestResults Execute()
         {
+            Status = TestStatus.Started;
+
             ValidateAndInitParams();
             GeneratePositionsPlan();
-
-            Status = TestStatus.Started;
 
             byte[] data = InitBuffer();
 

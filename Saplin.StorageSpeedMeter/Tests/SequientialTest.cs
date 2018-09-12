@@ -24,10 +24,10 @@ namespace Saplin.StorageSpeedMeter
 
         public override TestResults Execute()
         {
+            Status = TestStatus.Started;
+
             byte[] data = InitBuffer();
 
-            Status = TestStatus.Started;
-            
             var sw = new Stopwatch();
             var results = new TestResults(this);
 

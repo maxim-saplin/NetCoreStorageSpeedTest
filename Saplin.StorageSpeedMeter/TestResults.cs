@@ -172,7 +172,7 @@ namespace Saplin.StorageSpeedMeter
 
         private void Recalculate()
         {
-            if (results.Count == 0) throw new InvalidOperationException("No test results to calculate aggregate");
+            if (results.Count == 0) return;
 
             if (recalcCount != results.Count)
             {

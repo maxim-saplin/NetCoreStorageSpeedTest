@@ -19,8 +19,6 @@ namespace Saplin.StorageSpeedMeter
 
         protected bool breakCalled = false;
 
-        private bool prerequsiteCleanup = false;
-
         private TestStatus status = TestStatus.NotStarted;
 
         protected void Update(double? progressPercent = null, double? recentResult = null, long? elapsedMs = null, TestResults results = null)
@@ -37,7 +35,7 @@ namespace Saplin.StorageSpeedMeter
         public void Break()
         {
             breakCalled = true;
-            if ((status != TestStatus.NotStarted) && (status != TestStatus.NotStarted)) Status = TestStatus.Interrupted;
+            if (status != TestStatus.NotStarted) Status = TestStatus.Interrupted;
         }
 
         public TestStatus Status

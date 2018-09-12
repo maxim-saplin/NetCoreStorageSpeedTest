@@ -14,7 +14,7 @@ namespace Saplin.StorageSpeedMeter
         public event EventHandler<TestUpdateEventArgs> StatusUpdate;
 
         protected bool breakCalled = false;
-        protected TestResults[] results;
+        protected List<TestResults> results;
 
         public TestSuite()
         {
@@ -59,7 +59,7 @@ namespace Saplin.StorageSpeedMeter
         {
             ResetTests();
 
-            results = new TestResults[tests.Count];
+            results = new List<TestResults>();
             completedTests = 0;
 
             sw.Restart();
@@ -68,7 +68,7 @@ namespace Saplin.StorageSpeedMeter
             {
                 var r = t.Execute();
 
-                results[completedTests] = r;
+                results.Add(r);
                 completedTests++;
 
                 if (breakCalled) break;
@@ -76,7 +76,7 @@ namespace Saplin.StorageSpeedMeter
 
             sw.Stop();
 
-            return results;
+            return results.ToArray();
         }
 
         public void ExportToCsv(string folderPath, bool saveAllDataPoints)
