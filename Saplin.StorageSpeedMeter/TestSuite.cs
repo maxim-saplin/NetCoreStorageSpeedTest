@@ -47,11 +47,6 @@ namespace Saplin.StorageSpeedMeter
             foreach (Test t in tests) t.Break();
         }
 
-        protected virtual void PrerequisiteCleanup(int testIndex)
-        {
-            GC.Collect(2, GCCollectionMode.Forced, true);
-        }
-
         private void ResetTests()
         {
             foreach (var t in tests)
@@ -71,9 +66,6 @@ namespace Saplin.StorageSpeedMeter
 
             foreach (Test t in tests)
             {
-                if (t.PrerequsiteCleanup)
-                    PrerequisiteCleanup(completedTests - 1);
-
                 var r = t.Execute();
 
                 results[completedTests] = r;

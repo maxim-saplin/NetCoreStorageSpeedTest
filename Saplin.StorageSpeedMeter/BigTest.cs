@@ -64,9 +64,6 @@ namespace Saplin.StorageSpeedMeter
             remainingSeqReadMs = (long)(readFileSize / (avgReadSpeedMbs * 1024 * 1024) * 1000);
             remainingRandomMs = ListTests().Where(t => t.GetType().BaseType == typeof(RandomTest)).Count() * randomDuration * 1000;
 
-            var cleanups = tests.Count<Test>(t => t.PrerequsiteCleanup);
-            remainingCleanupMs = cleanups * cleanupTimeMs;
-
             var remainingRandomBaseMs = remainingRandomMs;
 
             remainingMs = remainingSeqWriteMs + remainingRandomMs + remainingSeqReadMs + remainingCleanupMs;
@@ -107,11 +104,6 @@ namespace Saplin.StorageSpeedMeter
                         remainingRandomBaseMs = remainingRandomBaseMs - randomDuration * 1000;
                         prevTest = sender;
 
-                        if ((sender as Test).PrerequsiteCleanup)
-                        {
-                            cleanups--;
-                            remainingCleanupMs = cleanups * cleanupTimeMs;
-                        }
                     }
                     if (e.Status == TestStatus.Completed)
                     {
@@ -150,10 +142,6 @@ namespace Saplin.StorageSpeedMeter
         }
 
         private long cleanupTimeMs = 1;
-
-        protected override void PrerequisiteCleanup(int testIndex)
-        {
-        }
 
         public override long RemainingMs => remainingMs;
 
@@ -298,6 +286,8 @@ namespace Saplin.StorageSpeedMeter
         public void Dispose()
         {
             Dispose(true);
+            tests = null;
+            GC.Collect(2, GCCollectionMode.Forced, true);
 
             GC.SuppressFinalize(this);
         }

@@ -28,8 +28,6 @@ namespace Saplin.StorageSpeedMeter
 
             Status = TestStatus.Started;
             
-            //Update("Executing sequential read test");
-
             var sw = new Stopwatch();
             var results = new TestResults(this);
 
@@ -74,11 +72,18 @@ namespace Saplin.StorageSpeedMeter
 
             FinalUpdate(results, ElapsedMs);
 
+            TestCompleted();
+
             return results;
         }
 
         protected abstract void DoOperation(byte[] buffer, Stopwatch sw);
 
         protected abstract byte[] InitBuffer();
+
+        protected virtual void TestCompleted()
+        {
+            GC.Collect(2, GCCollectionMode.Forced, true);
+        }
     }
 }

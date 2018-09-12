@@ -21,12 +21,6 @@ namespace Saplin.StorageSpeedMeter
 
         private bool prerequsiteCleanup = false;
 
-        // Read test might need file chace purged from RAM
-        public bool PrerequsiteCleanup
-        {
-            get => prerequsiteCleanup; protected set => prerequsiteCleanup = value;
-        }
-
         private TestStatus status = TestStatus.NotStarted;
 
         protected void Update(double? progressPercent = null, double? recentResult = null, long? elapsedMs = null, TestResults results = null)
