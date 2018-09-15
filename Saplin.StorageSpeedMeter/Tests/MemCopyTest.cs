@@ -17,12 +17,19 @@ namespace Saplin.StorageSpeedMeter
 
         protected override void DoOperation(byte[] buffer, Stopwatch sw)
         {
+            var rand = new Random();
+
             sw.Restart();
             Buffer.BlockCopy(src, 0, dst, current, src.Length);
             sw.Stop();
             current += blockSize / sizeof(int);
-            if (current >= dst.Length) 
+            if (current >= dst.Length)
+            {
                 current = 0;
+                src[0] = rand.Next();
+                src[1] = rand.Next();
+                src[src.Length-1] = rand.Next();
+            }
         }
 
         protected override byte[] InitBuffer()
@@ -30,7 +37,7 @@ namespace Saplin.StorageSpeedMeter
             Status = TestStatus.InitMemBuffer;
 
             src = new int[blockSize / sizeof(int)];
-            dst = new int[(blockSize * totalBlocks / 2) / sizeof(int)];
+            dst = new int[(blockSize * (totalBlocks / 4)) / sizeof(int)];
 
             var rand = new Random();
 
