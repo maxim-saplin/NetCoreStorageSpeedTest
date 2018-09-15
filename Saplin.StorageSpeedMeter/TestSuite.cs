@@ -80,7 +80,7 @@ namespace Saplin.StorageSpeedMeter
             return results.ToArray();
         }
 
-        public void ExportToCsv(string folderPath, bool saveAllDataPoints, DateTime? dateTime = null, string separator = ";", string decimalSeparator = ",")
+        public string ExportToCsv(string folderPath, bool saveAllDataPoints, DateTime? dateTime = null, string separator = ";", string decimalSeparator = ",")
         {
             const string aggregateFile = "Aggrgate-Results-{0:s}.csv";
             const string rawResultsFile = "Raw-Results-{0}-{1:s}.csv";
@@ -107,6 +107,8 @@ namespace Saplin.StorageSpeedMeter
                     }
                 }
             }
+
+            return fileName;
         }
 
         private void SaveAggregateResults(string folderPath, string fileName, string separator, string decimalSeparator, DateTime now)
