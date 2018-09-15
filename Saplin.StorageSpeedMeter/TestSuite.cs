@@ -80,10 +80,11 @@ namespace Saplin.StorageSpeedMeter
             return results.ToArray();
         }
 
-        public string ExportToCsv(string folderPath, bool saveAllDataPoints, DateTime? dateTime = null, string separator = ";", string decimalSeparator = ",")
+        public string[] ExportToCsv(string folderPath, bool saveAllDataPoints, DateTime? dateTime = null, string separator = ";", string decimalSeparator = ",")
         {
             const string aggregateFile = "Aggrgate-Results-{0:s}.csv";
             const string rawResultsFile = "Raw-Results-{0}-{1:s}.csv";
+            var fileNames = new List<string>();
 
             if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
 
@@ -91,8 +92,11 @@ namespace Saplin.StorageSpeedMeter
 
             var fileName = string.Format(aggregateFile, now);
             fileName = Path.GetInvalidFileNameChars().Aggregate(fileName, (current, c) => current.Replace(c.ToString(), string.Empty));
+            fileName = Path.Combine(folderPath, fileName);
 
-            SaveAggregateResults(folderPath, fileName, separator, decimalSeparator, now);
+            SaveAggregateResults(fileName, separator, decimalSeparator, now);
+
+            fileNames.Add(fileName);
 
             if (saveAllDataPoints)
             {
@@ -102,16 +106,19 @@ namespace Saplin.StorageSpeedMeter
                     {
                         fileName = string.Format(rawResultsFile, r.TestDisplayName, now);
                         fileName = Path.GetInvalidFileNameChars().Aggregate(fileName, (current, c) => current.Replace(c.ToString(), string.Empty));
+                        fileName = Path.Combine(folderPath, fileName);
 
-                        SaveRawResults(folderPath, fileName, separator, decimalSeparator, r);
+                        SaveRawResults(fileName, separator, decimalSeparator, r);
+
+                        fileNames.Add(fileName);
                     }
                 }
             }
 
-            return fileName;
+            return fileNames.ToArray();
         }
 
-        private void SaveAggregateResults(string folderPath, string fileName, string separator, string decimalSeparator, DateTime now)
+        private void SaveAggregateResults(string fileName, string separator, string decimalSeparator, DateTime now)
         {
             var nfi = new NumberFormatInfo
             {
@@ -119,11 +126,7 @@ namespace Saplin.StorageSpeedMeter
                 NumberGroupSeparator = String.Empty
             };
 
-            var stream = System.IO.File.CreateText(
-                Path.Combine(
-                    folderPath,
-                    fileName
-                    ));
+            var stream = System.IO.File.CreateText(fileName);
 
             using (stream)
             {
@@ -139,7 +142,7 @@ namespace Saplin.StorageSpeedMeter
                         var s = string.Format(nfi, "{1}{0}{2}{0}{3:s}{0}{5:N}{0}{6:N}{0}{7:N}{0}{8:N}{0}{9}{0}{10}{0}{11}{0}{12}{0}{13}{0}",
                             separator,                                  //{0}
                             r.TestDisplayName,                          //{1}
-                            Directory.GetDirectoryRoot(folderPath),     //{2}
+                            Directory.GetDirectoryRoot(fileName),       //{2}
                             now,                                        //{3}
                             r.AvgThroughputNormalized,                  //{4}
                             r.AvgThroughput,                            //{5}
@@ -161,7 +164,7 @@ namespace Saplin.StorageSpeedMeter
             }
         }
 
-        private static void SaveRawResults(string folderPath, string fileName, string separator, string decimalSeparator, TestResults r)
+        private static void SaveRawResults(string fileName, string separator, string decimalSeparator, TestResults r)
         {
             var nfi = new NumberFormatInfo
             {
@@ -169,11 +172,7 @@ namespace Saplin.StorageSpeedMeter
                 NumberGroupSeparator = String.Empty
             };
 
-            var stream = System.IO.File.CreateText(
-            Path.Combine(
-                folderPath,
-                fileName
-                ));
+            var stream = System.IO.File.CreateText(fileName);
 
             using (stream)
             {
