@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace Saplin.StorageSpeedMeter
 {
-    public enum TestStatus { NotStarted, Started, InitMemBuffer, WarmigUp, Running, Completed, Interrupted };
+    public enum TestStatus { NotStarted, Started, InitMemBuffer, WarmigUp, Running, Completed, Interrupted, NotEnoughMemory };
 
     public abstract class Test
     {

@@ -40,19 +40,17 @@ namespace Saplin.StorageSpeedMeter
 
             SetUpRemainigCalculations();
 
-            var memCopyBlocks = 6;
+            var memCopyBlocks = 12;
             const int memCopyBlockSize = 128 * 1024 * 1024;
-            if (Environment.Is64BitProcess) memCopyBlocks = 12;
+            if (Environment.Is64BitProcess) memCopyBlocks = 24;
 
-            if (RamDiskUtil.FreeRam > memCopyBlockSize*(memCopyBlocks+2))
-                AddTest(new MemCopyTest(file.ReadStream/*hack, memcopy doesn't actually need file and stream is not used*/, memCopyBlockSize, memCopyBlocks));
+            AddTest(new MemCopyTest(file.ReadStream/*hack, memcopy doesn't actually need file and stream is not used*/, memCopyBlockSize, memCopyBlocks));
         }
 
         long remainingMs;
         long remainingSeqWriteMs;
         long remainingSeqReadMs;
         long remainingRandomMs;
-        long remainingCleanupMs;
         double avgWriteSpeedMbs = 100; //MB/s
         double avgReadSpeedMbs = 110; //MB/s
 
@@ -66,7 +64,7 @@ namespace Saplin.StorageSpeedMeter
 
             var remainingRandomBaseMs = remainingRandomMs;
 
-            remainingMs = remainingSeqWriteMs + remainingRandomMs + remainingSeqReadMs + remainingCleanupMs;
+            remainingMs = remainingSeqWriteMs + remainingRandomMs + remainingSeqReadMs;
 
             long seqReadElapsedStart = -1;
             var seqReadSpeedUpdated = false;
@@ -126,7 +124,7 @@ namespace Saplin.StorageSpeedMeter
                         remainingSeqReadMs = (long)((100 - e.ProgressPercent) / (e.ProgressPercent / (ElapsedMs - seqReadElapsedStart)));
                 }
 
-                remainingMs = Math.Max(0, remainingSeqWriteMs + remainingRandomMs + remainingSeqReadMs + remainingCleanupMs);
+                remainingMs = Math.Max(0, remainingSeqWriteMs + remainingRandomMs + remainingSeqReadMs);
             };
         }
 
@@ -140,8 +138,6 @@ namespace Saplin.StorageSpeedMeter
 
             return results;
         }
-
-        private long cleanupTimeMs = 1;
 
         public override long RemainingMs => remainingMs;
 
@@ -280,7 +276,7 @@ namespace Saplin.StorageSpeedMeter
 
         private void ValidateTestsForScores()
         {
-            if (tests.Any<Test>(t => t.Status != TestStatus.Completed)) throw new InvalidOperationException("Cant't calculate agregate score on a test suite with not all tests completed");
+            if (tests.Cast<Test>().Where(t => t.GetType() != typeof(MemCopyTest)).Any(t => t.Status != TestStatus.Completed)) throw new InvalidOperationException("Cant't calculate agregate score on a test suite with not all tests completed");
         }
 
         public void Dispose()

@@ -7,7 +7,7 @@ namespace Saplin.StorageSpeedMeter
     public class MemCopyTest : SequentialTest
     {
         private int[] src, dst;
-        int current;
+        int current = 0;
 
         public MemCopyTest(FileStream file, int blockSize, long totalBlocks = 0) : base(file, blockSize, totalBlocks)
         {
@@ -20,7 +20,9 @@ namespace Saplin.StorageSpeedMeter
             sw.Restart();
             Buffer.BlockCopy(src, 0, dst, current, src.Length);
             sw.Stop();
-            current += blockSize;
+            current += blockSize / sizeof(int);
+            if (current >= dst.Length) 
+                current = 0;
         }
 
         protected override byte[] InitBuffer()
@@ -28,7 +30,7 @@ namespace Saplin.StorageSpeedMeter
             Status = TestStatus.InitMemBuffer;
 
             src = new int[blockSize / sizeof(int)];
-            dst = new int[blockSize * totalBlocks / sizeof(int)];
+            dst = new int[(blockSize * totalBlocks / 2) / sizeof(int)];
 
             var rand = new Random();
 

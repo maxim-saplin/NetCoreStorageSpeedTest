@@ -70,7 +70,17 @@ namespace Saplin.StorageSpeedMeter
             ValidateAndInitParams();
             GeneratePositionsPlan();
 
-            byte[] data = InitBuffer();
+            byte[] data = null;
+
+            try
+            {
+                data = InitBuffer();
+            }
+            catch
+            {
+                Status = TestStatus.NotEnoughMemory;
+                return null;
+            }
 
             var sw = new Stopwatch();
             var results = new TestResults(this);

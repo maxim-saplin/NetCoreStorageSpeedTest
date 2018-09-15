@@ -69,7 +69,7 @@ namespace Saplin.StorageSpeedMeter
             {
                 var r = t.Execute();
 
-                results.Add(r);
+                if (r != null) results.Add(r);
                 completedTests++;
 
                 if (breakCalled) break;
