@@ -121,7 +121,7 @@ namespace Saplin.StorageSpeedMeter
 
                 if (curPercent > prevPercent)
                 {
-                    Update(curPercent, results.GetLatest5MeanResult());
+                    Update(curPercent, results.GetLatest5AvgResult());
                     prevPercent = curPercent;
 
                     if (curPercent == 100) break;

@@ -72,7 +72,7 @@ namespace Saplin.StorageSpeedMeter
                     curPercent = (int)(i * 100 / totalBlocks);
                     if (curPercent > prevPercent)
                     {
-                        Update(curPercent, results.GetLatest5MeanResult());
+                        Update(curPercent, results.GetLatest5AvgResult());
                         prevPercent = curPercent;
                     }
                 }

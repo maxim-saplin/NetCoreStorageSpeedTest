@@ -243,17 +243,16 @@ namespace Saplin.StorageSpeedMeter
             return results[results.Count - 1];
         }
 
-        public double GetLatest5MeanResult()
+        public double GetLatest5AvgResult()
         {
-            double[] vals = new double[5];
+            if (results.Count == 0) return 0;
 
-            vals[0] = results.Count > 0 ? results[results.Count - 1] : 0;
-            vals[1] = results.Count > 1 ? results[results.Count - 2] : vals[0];
-            vals[2] = results.Count > 2 ? results[results.Count - 3] : vals[1];
-            vals[3] = results.Count > 3 ? results[results.Count - 4] : vals[2];
-            vals[4] = results.Count > 4 ? results[results.Count - 5] : vals[3];
+            double inverseThroughputs = 0;
 
-            return (vals[0] + vals[1] + vals[2] + vals[3] + vals[4]) / 5;
+            for (var i = results.Count-1; i >= (results.Count - 5 > 0 ? results.Count - 5 : 0); i-- )
+                inverseThroughputs += 1 / results[i];
+
+            return results.Count - 5 > 0 ? 5 / inverseThroughputs : results.Count / inverseThroughputs;
         }
 
         IEnumerator<double> IEnumerable<double>.GetEnumerator()
