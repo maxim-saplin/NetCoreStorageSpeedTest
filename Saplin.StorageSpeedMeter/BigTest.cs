@@ -40,8 +40,7 @@ namespace Saplin.StorageSpeedMeter
 
             SetUpRemainigCalculations();
 
-            var memCopyBlocks = 12;
-            if (Environment.Is64BitProcess) memCopyBlocks = 24;
+            var memCopyBlocks = 24;
             const int memCopyBlockSize = 256 * 1024 * 1024;
 
             AddTest(new MemCopyTest(file.ReadStream/*hack, memcopy doesn't actually need file and stream is not used*/, memCopyBlockSize, memCopyBlocks));
