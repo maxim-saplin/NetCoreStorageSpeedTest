@@ -209,19 +209,27 @@ namespace Saplin.StorageSpeedMeter
             }
         }
 
+        public void AddResultInternal(double result, long? position)
+        {
+            if (!double.IsInfinity(result))
+            {
+                results.Add(result);
+                if (position != null) positions.Add(position.Value);
+            }
+        }
+
         public void AddResult(double result)
         {
             if (positions.Count > 0) throw new InvalidOperationException("You can't call this method once overload AddResult(double result, long position) has been called");
 
-            results.Add(result);
+            AddResultInternal(result, null);
         }
 
         public void AddResult(double result, long position)
         {
             if (positions.Count != results.Count) throw new InvalidOperationException("You can't call this method once overload AddResult(double result) has been called");
 
-            results.Add(result);
-            positions.Add(position);
+            AddResultInternal(result, position);
         }
 
         public void AddTroughputMbs(long bytes, Stopwatch stopwatch)
