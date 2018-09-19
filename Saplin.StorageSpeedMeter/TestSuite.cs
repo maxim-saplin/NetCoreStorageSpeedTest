@@ -221,7 +221,7 @@ namespace Saplin.StorageSpeedMeter
         {
             get
             {
-                return tests.Count;
+                return tests == null ? 0 : tests.Count;
             }
         }
 

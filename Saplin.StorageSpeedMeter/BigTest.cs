@@ -133,8 +133,6 @@ namespace Saplin.StorageSpeedMeter
 
             var results = base.Execute();
 
-            file.Dispose();
-
             return results;
         }
 
