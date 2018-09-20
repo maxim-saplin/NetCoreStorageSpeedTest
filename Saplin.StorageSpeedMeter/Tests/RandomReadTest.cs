@@ -5,11 +5,11 @@ namespace Saplin.StorageSpeedMeter
 {
     public class RandomReadTest : RandomTest
     {
-        private bool flushBuf = false;
+        //private bool flushBuf = false;
 
         public RandomReadTest(TestFile file, int blockSize, int testTimeSecs = 30) : base(file.ReadStream, blockSize, testTimeSecs)
         {
-            flushBuf = file.enableMemCache;
+            //flushBuf = file.enableMemCache;
         }
 
         public override string DisplayName { get => "Random read" + " [" + blockSize / 1024 + "KB] block"; }
@@ -28,7 +28,6 @@ namespace Saplin.StorageSpeedMeter
             sw.Restart();
             fileStream.Seek(offsetBytes, SeekOrigin.Begin);
             fileStream.Read(buffer, 0, blockSize);
-            //fileStream.Flush();
             //if (flushBuf) fileStream.Flush();
             sw.Stop();
         }

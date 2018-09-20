@@ -6,11 +6,11 @@ namespace Saplin.StorageSpeedMeter
 {
     public class SequentialReadTest : SequentialTest
     {
-        private bool flushBuf = false;
+        //private bool flushBuf = false;
 
         public SequentialReadTest(TestFile file, int blockSize, long totalBlocks = 0) : base(file.ReadStream, blockSize, totalBlocks)
         {
-            flushBuf = file.enableMemCache;
+            //flushBuf = file.enableMemCache;
         }
 
         public override string DisplayName { get => "Sequential read" + " [" + blockSize / 1024 / 1024 + "MB] block"; }
@@ -19,7 +19,6 @@ namespace Saplin.StorageSpeedMeter
         {
             sw.Restart();
             fileStream.Read(buffer, 0, blockSize);
-            //fileStream.Flush();
             sw.Stop();
         }
 
