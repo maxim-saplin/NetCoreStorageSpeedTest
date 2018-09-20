@@ -28,6 +28,7 @@ namespace Saplin.StorageSpeedMeter
             sw.Restart();
             fileStream.Seek(offsetBytes, SeekOrigin.Begin);
             fileStream.Read(buffer, 0, blockSize);
+            //fileStream.Flush();
             //if (flushBuf) fileStream.Flush();
             sw.Stop();
         }

@@ -19,7 +19,7 @@ namespace Saplin.StorageSpeedMeter
             sw.Restart();
             fileStream.Write(buffer, 0, blockSize);
             fileStream.Flush();
-            //if (file.)
+            //if (flushBuf) fileStream.Flush(true);
             sw.Stop();
         }
 
