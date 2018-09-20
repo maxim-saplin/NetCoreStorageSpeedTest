@@ -6,9 +6,11 @@ namespace Saplin.StorageSpeedMeter
 {
     public class SequentialReadTest : SequentialTest
     {
-        public SequentialReadTest(FileStream file, int blockSize, long totalBlocks = 0) : base(file, blockSize, totalBlocks)
+        private bool flushBuf = false;
+
+        public SequentialReadTest(TestFile file, int blockSize, long totalBlocks = 0) : base(file.ReadStream, blockSize, totalBlocks)
         {
-            
+            flushBuf = file.enableMemCache;
         }
 
         public override string DisplayName { get => "Sequential read" + " [" + blockSize / 1024 / 1024 + "MB] block"; }
@@ -16,15 +18,15 @@ namespace Saplin.StorageSpeedMeter
         protected override void DoOperation(byte[] buffer, Stopwatch sw)
         {
             sw.Restart();
-            file.Read(buffer, 0, blockSize);
+            fileStream.Read(buffer, 0, blockSize);
             sw.Stop();
         }
 
         protected override byte[] InitBuffer()
         {
-            if (file.Length < blockSize) throw new ArgumentException("File size cant be less than block size");
+            if (fileStream.Length < blockSize) throw new ArgumentException("File size cant be less than block size");
 
-            if (totalBlocks == 0) totalBlocks = (int)(file.Length / blockSize);
+            if (totalBlocks == 0) totalBlocks = (int)(fileStream.Length / blockSize);
 
             var buffer = new byte[blockSize];
             return buffer;

@@ -33,17 +33,17 @@ namespace Saplin.StorageSpeedMeter
             this.fileSize = fileSize;
             bigBlocksNumber = fileSize / bigBlockSize;
 
-            AddTest(new SequentialWriteTest(file.WriteStream, bigBlockSize, bigBlocksNumber, true));
-            AddTest(new SequentialReadTest(file.ReadStream, bigBlockSize, (long)(bigBlocksNumber * readFileToFullRatio)));
-            AddTest(new RandomWriteTest(file.WriteStream, smallBlockSize, randomDuration));
-            AddTest(new RandomReadTest(file.ReadStream, smallBlockSize, randomDuration));
+            AddTest(new SequentialWriteTest(file, bigBlockSize, bigBlocksNumber, true));
+            AddTest(new SequentialReadTest(file, bigBlockSize, (long)(bigBlocksNumber * readFileToFullRatio)));
+            AddTest(new RandomWriteTest(file, smallBlockSize, randomDuration));
+            AddTest(new RandomReadTest(file, smallBlockSize, randomDuration));
 
             SetUpRemainigCalculations();
 
             var memCopyBlocks = 24;
             const int memCopyBlockSize = 256 * 1024 * 1024;
 
-            AddTest(new MemCopyTest(file.ReadStream/*hack, memcopy doesn't actually need file and stream is not used*/, memCopyBlockSize, memCopyBlocks));
+            AddTest(new MemCopyTest(memCopyBlockSize, memCopyBlocks));
         }
 
         long remainingMs;

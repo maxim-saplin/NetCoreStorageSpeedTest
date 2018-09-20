@@ -9,7 +9,7 @@ namespace Saplin.StorageSpeedMeter
         protected const int memoryBuffSize = 128 * 1024 * 1024;
         private const int maxBlocksInTest = 1 * 1024 * 1024; // 8 Mb for shuffled positions
 
-        protected readonly FileStream file;
+        protected readonly FileStream fileStream;
         
         protected readonly double? percentOfFileToOwerwrite;
         protected readonly int? maxTestTime;
@@ -18,12 +18,12 @@ namespace Saplin.StorageSpeedMeter
         protected long maxBlock; // max index of block accesible
         protected long minBlock;
 
-        public RandomTest(FileStream file, int blockSize, int maxTestTimeSecs = 25)
+        public RandomTest(FileStream fileStream, int blockSize, int maxTestTimeSecs = 25)
         {
             if (percentOfFileToOwerwrite <= 0) throw new ArgumentOutOfRangeException("percentOfFileToOwerwrite", "Size of file to be overwritten (in percents of it's current size) must greater than 0");
             if (blockSize <= 0) throw new ArgumentOutOfRangeException("blockSize", "Block size cant be negative");
 
-            this.file = file;
+            this.fileStream = fileStream;
             this.blockSize = blockSize;
             blocksInMemory = memoryBuffSize / blockSize;
             this.maxTestTime = maxTestTimeSecs;
@@ -33,10 +33,10 @@ namespace Saplin.StorageSpeedMeter
 
         protected virtual void ValidateAndInitParams()
         {
-            if (file.Length == 0) throw new InvalidOperationException("File can't be empty");
-            if (blockSize > file.Length) throw new InvalidOperationException("Block size cant be greater than file size");
+            if (fileStream.Length == 0) throw new InvalidOperationException("File can't be empty");
+            if (blockSize > fileStream.Length) throw new InvalidOperationException("Block size cant be greater than file size");
 
-            maxBlock = (file.Length /2 / blockSize);
+            maxBlock = (fileStream.Length /2 / blockSize);
             minBlock = 0;
         }
 

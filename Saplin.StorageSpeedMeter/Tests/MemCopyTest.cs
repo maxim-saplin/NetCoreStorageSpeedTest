@@ -1,21 +1,79 @@
 ﻿using System;
 using System.Diagnostics;
-using System.IO;
 
 namespace Saplin.StorageSpeedMeter
 {
-    public class MemCopyTest : SequentialTest
+    public class MemCopyTest : Test
     {
         private int[] src, dst;
+        protected long totalBlocks;
         int current = 0;
 
-        public MemCopyTest(FileStream file, int blockSize, long totalBlocks = 0) : base(file, blockSize, totalBlocks)
+        public MemCopyTest(int blockSize, long totalBlocks = 0)
         {
+            if (blockSize <= 0) throw new ArgumentOutOfRangeException("blockSize", "Block size cant be negative");
+            if (totalBlocks < 0) throw new ArgumentOutOfRangeException("totalBlocks", "Block number cant be negative");
+            this.blockSize = blockSize;
+            this.totalBlocks = totalBlocks;
         }
 
         public override string DisplayName { get => "Memory copy" + " [" + blockSize / 1024 / 1024 + "MB] block"; }
 
-        protected override void DoOperation(byte[] buffer, Stopwatch sw)
+        public override TestResults Execute()
+        {
+            Status = TestStatus.Started;
+
+            byte[] data = null;
+
+            try
+            {
+                data = InitBuffer();
+            }
+            catch (Exception ex)
+            {
+                Status = TestStatus.NotEnoughMemory;
+                return null;
+            }
+
+            var sw = new Stopwatch();
+            var results = new TestResults(this);
+
+            int prevPercent = -1;
+            int curPercent = -1;
+
+            RestartStopwatch();
+
+            Status = TestStatus.Running;
+
+            for (var i = 1; i < totalBlocks + 1; i++)
+            {
+                if (breakCalled)
+                {
+                    return results;
+                }
+
+                DoOperation(data, sw);
+
+                results.AddTroughputMbs(blockSize, 0, sw);
+
+                curPercent = (int)(i * 100 / totalBlocks);
+                if (curPercent > prevPercent)
+                {
+                    Update(curPercent, results.GetLatest5AvgResult());
+                    prevPercent = curPercent;
+                }
+            }
+
+            results.TotalTimeMs = StopStopwatch();
+
+            FinalUpdate(results, ElapsedMs);
+
+            TestCompleted();
+
+            return results;
+        }
+
+        protected void DoOperation(byte[] buffer, Stopwatch sw)
         {
             var rand = new Random();
 
@@ -28,16 +86,16 @@ namespace Saplin.StorageSpeedMeter
                 current = 0;
                 src[0] = rand.Next();
                 src[1] = rand.Next();
-                src[src.Length-1] = rand.Next();
+                src[src.Length - 1] = rand.Next();
             }
         }
 
-        protected override byte[] InitBuffer()
+        protected byte[] InitBuffer()
         {
             Status = TestStatus.InitMemBuffer;
 
             src = new int[blockSize / sizeof(int)];
-            dst = new int[(blockSize * (totalBlocks / (Environment.Is64BitProcess ? 4 : 4*4))) / sizeof(int)];
+            dst = new int[(blockSize * (totalBlocks / (Environment.Is64BitProcess ? 4 : 4 * 4))) / sizeof(int)];
 
             var rand = new Random();
 
@@ -48,12 +106,11 @@ namespace Saplin.StorageSpeedMeter
             return null;
         }
 
-        protected override void TestCompleted()
+        protected void TestCompleted()
         {
             src = null;
             dst = null;
-
-            base.TestCompleted();
+            GC.Collect(2, GCCollectionMode.Forced, true);
         }
     }
 }

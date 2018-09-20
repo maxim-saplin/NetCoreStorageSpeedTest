@@ -1,20 +1,25 @@
 ﻿using System;
 using System.Diagnostics;
-using System.IO;
 
 namespace Saplin.StorageSpeedMeter
 {
     public class SequentialWriteTest : SequentialTest
     {
-        public SequentialWriteTest(FileStream file, int blockSize, long totalBlocks, bool warmUp) : base(file, blockSize, totalBlocks, warmUp) { }
+        private bool flushBuf = false;
+
+        public SequentialWriteTest(TestFile file, int blockSize, long totalBlocks, bool warmUp) : base(file.WriteStream, blockSize, totalBlocks, warmUp)
+        {
+            flushBuf = file.enableWriteThrough;
+        }
 
         public override string DisplayName { get => "Sequential write" + " [" + blockSize / 1024 / 1024 + "MB] block"; }
 
         protected override void DoOperation(byte[] buffer, Stopwatch sw)
         {
             sw.Restart();
-            file.Write(buffer, 0, blockSize);
-            file.Flush();
+            fileStream.Write(buffer, 0, blockSize);
+            fileStream.Flush();
+            //if (file.)
             sw.Stop();
         }
 

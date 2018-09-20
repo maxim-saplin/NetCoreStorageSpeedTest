@@ -6,17 +6,17 @@ namespace Saplin.StorageSpeedMeter
 {
     public abstract class SequentialTest : Test
     {
-        protected readonly FileStream file;
+        protected readonly FileStream fileStream;
         protected long totalBlocks;
         protected bool warmUp;
         protected readonly double warmUpBlocksPercentFromTotal = 0.05;
 
-        public SequentialTest(FileStream file, int blockSize, long totalBlocks = 0, bool warmUp = false)
+        public SequentialTest(FileStream fileStream, int blockSize, long totalBlocks = 0, bool warmUp = false)
         {
             if (blockSize <= 0) throw new ArgumentOutOfRangeException("blockSize", "Block size cant be negative");
             if (totalBlocks < 0) throw new ArgumentOutOfRangeException("totalBlocks", "Block number cant be negative");
 
-            this.file = file;
+            this.fileStream = fileStream;
             this.blockSize = blockSize;
             this.totalBlocks = totalBlocks;
             this.warmUp = warmUp;
@@ -43,7 +43,7 @@ namespace Saplin.StorageSpeedMeter
 
             int prevPercent = -1;
             int curPercent = -1;
-            file.Seek(0, SeekOrigin.Begin);
+            fileStream.Seek(0, SeekOrigin.Begin);
 
             RestartStopwatch();
 
@@ -61,13 +61,13 @@ namespace Saplin.StorageSpeedMeter
                 if (i == 0) // final warm up block
                 {
                     Status = TestStatus.Running;
-                    file.Seek(0, SeekOrigin.Begin);
+                    fileStream.Seek(0, SeekOrigin.Begin);
                 }
 
                 if (i > 0) // not warm up blocks
                 {
 
-                    results.AddTroughputMbs(blockSize, file.Position - blockSize, sw);
+                    results.AddTroughputMbs(blockSize, fileStream.Position - blockSize, sw);
 
                     curPercent = (int)(i * 100 / totalBlocks);
                     if (curPercent > prevPercent)

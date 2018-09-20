@@ -11,12 +11,14 @@ namespace Saplin.StorageSpeedMeter
         string path;
         string folderPath;
 
+        protected internal bool enableWriteThrough, enableMemCache;
+
         public FileStream WriteStream
         {
             get;
         }
 
-        public FileStream ReadStream//FILE_FLAG_NO_BUFFERING attribute breakes unaligned writes, separate read/write hadnles/stream ar needed with different CreateFile attribtes
+        public FileStream ReadStream//FILE_FLAG_NO_BUFFERING attribute breakes unaligned writes, separate read/write hadnles/stream are needed with different CreateFile attribtes
         {
             get;
         }
@@ -30,6 +32,9 @@ namespace Saplin.StorageSpeedMeter
         {
             path = string.IsNullOrEmpty(filePath) ? RamDiskUtil.GetTempFilePath(drivePath) : filePath;
             folderPath = System.IO.Path.GetDirectoryName(path);
+
+            this.enableWriteThrough = enableWriteThrough;
+            this.enableMemCache = enableMemCache;
 
             if (RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX)) //macOS
             {

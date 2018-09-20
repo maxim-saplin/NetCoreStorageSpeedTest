@@ -6,8 +6,11 @@ namespace Saplin.StorageSpeedMeter
 {
     public class RandomWriteTest : RandomTest
     {
-        public RandomWriteTest(FileStream file, int blockSize, int testTimeSecs = 30) : base(file, blockSize, testTimeSecs)
+        private bool flushBuf = false;
+
+        public RandomWriteTest(TestFile file, int blockSize, int testTimeSecs = 30) : base(file.WriteStream, blockSize, testTimeSecs)
         {
+            flushBuf = file.enableWriteThrough;
         }
 
         public override string DisplayName { get => "Random write" + " [" + blockSize / 1024 + "KB] block"; }
@@ -18,17 +21,16 @@ namespace Saplin.StorageSpeedMeter
         {
             data[rand.Next(data.Length)] = (byte)rand.Next(); //change to the block, JIC there's some clever cachning noticing same block is being writen
             sw.Restart();
-            file.Seek(currBlock, SeekOrigin.Begin);
-            file.Write(data, i % blocksInMemory, blockSize);
-            file.Flush();
+            fileStream.Seek(currBlock, SeekOrigin.Begin);
+            fileStream.Write(data, i % blocksInMemory, blockSize);
+            fileStream.Flush();
+            //if (flushBuf) fileStream.Flush(true);
             sw.Stop();
         }
 
         protected override byte[] InitBuffer()
         {
             Status = TestStatus.InitMemBuffer;
-            
-            //Update("Initilizing data in memory");
 
             rand = new Random();
             var data = new byte[blockSize * blocksInMemory];
