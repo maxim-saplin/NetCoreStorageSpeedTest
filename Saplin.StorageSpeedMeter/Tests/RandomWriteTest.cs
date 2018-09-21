@@ -10,7 +10,7 @@ namespace Saplin.StorageSpeedMeter
 
         public RandomWriteTest(TestFile file, int blockSize, int testTimeSecs = 30) : base(file.WriteStream, blockSize, testTimeSecs)
         {
-            flushBuf = file.enableWriteThrough;
+            flushBuf = !file.writeBuffering;
         }
 
         public override string DisplayName { get => "Random write" + " [" + blockSize / 1024 + "KB] block"; }
@@ -23,7 +23,6 @@ namespace Saplin.StorageSpeedMeter
             sw.Restart();
             fileStream.Seek(currBlock, SeekOrigin.Begin);
             fileStream.Write(data, i % blocksInMemory, blockSize);
-            //fileStream.Flush();
             if (flushBuf) fileStream.Flush(true);
             sw.Stop();
         }

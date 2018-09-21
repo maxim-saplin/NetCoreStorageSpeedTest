@@ -9,7 +9,7 @@ namespace Saplin.StorageSpeedMeter
 
         public SequentialWriteTest(TestFile file, int blockSize, long totalBlocks, bool warmUp) : base(file.WriteStream, blockSize, totalBlocks, warmUp)
         {
-            flushBuf = file.enableWriteThrough;
+            flushBuf = !file.writeBuffering;
         }
 
         public override string DisplayName { get => "Sequential write" + " [" + blockSize / 1024 / 1024 + "MB] block"; }
