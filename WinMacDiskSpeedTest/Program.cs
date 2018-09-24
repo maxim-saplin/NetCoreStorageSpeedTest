@@ -107,6 +107,9 @@ namespace WinMacDiskSpeedTest
                                 case TestStatus.InitMemBuffer:
                                     Console.Write("Initializing test data in RAM...");
                                     break;
+                                case TestStatus.PurgingMemCache:
+                                    Console.Write("Purging file cache in RAM...");
+                                    break;
                                 case TestStatus.WarmigUp:
                                     Console.Write("Warming up...");
                                     break;

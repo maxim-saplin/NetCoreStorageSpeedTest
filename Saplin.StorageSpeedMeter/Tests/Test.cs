@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace Saplin.StorageSpeedMeter
 {
-    public enum TestStatus { NotStarted, Started, InitMemBuffer, WarmigUp, Running, Completed, Interrupted, NotEnoughMemory };
+    public enum TestStatus { NotStarted, Started, InitMemBuffer, WarmigUp, Running, Completed, Interrupted, NotEnoughMemory, PurgingMemCache };
 
     public abstract class Test
     {
@@ -14,6 +14,8 @@ namespace Saplin.StorageSpeedMeter
         public string Name { get; set; }
         public event EventHandler<TestUpdateEventArgs> StatusUpdate;
         protected int blockSize;
+
+        protected ICachePurger cachePurger;
 
         public int BlockSizeBytes { get { return blockSize; } }
 

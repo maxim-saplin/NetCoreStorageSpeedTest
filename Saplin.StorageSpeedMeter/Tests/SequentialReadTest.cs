@@ -1,16 +1,13 @@
 ﻿using System;
 using System.Diagnostics;
-using System.IO;
 
 namespace Saplin.StorageSpeedMeter
 {
     public class SequentialReadTest : SequentialTest
     {
-        //private bool flushBuf = false;
-
-        public SequentialReadTest(TestFile file, int blockSize, long totalBlocks = 0) : base(file.ReadStream, blockSize, totalBlocks)
+        public SequentialReadTest(TestFile file, int blockSize, ICachePurger cachePurger = null) : base(file.ReadStream, blockSize, file.TestAreaSizeBytes/blockSize)
         {
-            //flushBuf = file.enableMemCache;
+            this.cachePurger = cachePurger;
         }
 
         public override string DisplayName { get => "Sequential read" + " [" + blockSize / 1024 / 1024 + "MB] block"; }

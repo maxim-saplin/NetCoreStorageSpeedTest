@@ -7,7 +7,7 @@ namespace Saplin.StorageSpeedMeter
     public abstract class RandomTest : Test
     {
         protected const int memoryBuffSize = 128 * 1024 * 1024;
-        private const int maxBlocksInTest = 1 * 1024 * 1024; // 8 Mb for shuffled positions
+        private const int maxBlocksInTest = 1 * 1024 * 1024; // 8 Mb for shuffled positions, 4GB for 4KB block
 
         protected readonly FileStream fileStream;
         
@@ -35,9 +35,6 @@ namespace Saplin.StorageSpeedMeter
         {
             if (fileStream.Length == 0) throw new InvalidOperationException("File can't be empty");
             if (blockSize > fileStream.Length) throw new InvalidOperationException("Block size cant be greater than file size");
-
-            maxBlock = (fileStream.Length /2 / blockSize);
-            minBlock = 0;
         }
 
         private void GeneratePositionsPlan() // to avoid RAM caching, it's important to avoid repetative reads of same blocks - if read once, the block might stay in RAM cache and next read will yield RAM value. Possition shuffaling is used
@@ -80,6 +77,12 @@ namespace Saplin.StorageSpeedMeter
             {
                 Status = TestStatus.NotEnoughMemory;
                 return null;
+            }
+
+            if (cachePurger != null)
+            {
+                Status = TestStatus.PurgingMemCache;
+                cachePurger.Purge();
             }
 
             var sw = new Stopwatch();

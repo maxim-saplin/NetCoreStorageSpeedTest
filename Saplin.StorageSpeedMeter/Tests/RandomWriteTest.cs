@@ -7,13 +7,23 @@ namespace Saplin.StorageSpeedMeter
     public class RandomWriteTest : RandomTest
     {
         private bool flushBuf = false;
+        private long fileSize;
 
         public RandomWriteTest(TestFile file, int blockSize, int testTimeSecs = 30) : base(file.WriteStream, blockSize, testTimeSecs)
         {
             flushBuf = !file.writeBuffering;
+            fileSize = file.TestAreaSizeBytes;
         }
 
         public override string DisplayName { get => "Random write" + " [" + blockSize / 1024 + "KB] block"; }
+
+        protected override void ValidateAndInitParams()
+        {
+            base.ValidateAndInitParams();
+
+            minBlock = fileSize / blockSize / 2;
+            maxBlock = fileSize / blockSize - 1; // only half of the file is used to help deal with mem caching 
+        }
 
         Random rand;
 

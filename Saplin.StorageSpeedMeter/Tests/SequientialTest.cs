@@ -38,6 +38,12 @@ namespace Saplin.StorageSpeedMeter
                 return null;
             }
 
+            if (cachePurger != null)
+            {
+                Status = TestStatus.PurgingMemCache;
+                cachePurger.Purge();
+            }
+
             var sw = new Stopwatch();
             var results = new TestResults(this);
 

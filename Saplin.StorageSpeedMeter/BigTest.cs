@@ -5,20 +5,28 @@ using System.Linq;
 
 namespace Saplin.StorageSpeedMeter
 {
+    public enum MemCacheOptions
+    {
+        Enabled, 
+        Disabled, // Windows and OS
+        DisabledEmulation // Other OS, try trick system into purging cache
+    }
+
     public class BigTest : TestSuite, IDisposable
     {
         public readonly long fileSize;
         public const int bigBlockSize = 4 * 1024 * 1024;
         public const int smallBlockSize = 4 * 1024;
+        public const int mediumBlockSize = 32 * 1024;
         const double readFileToFullRatio = 1.0; // sequential read can be executed only on a portion of file
         const double avgReadToWriteRatio = 1.1; // starting point for elapsed time estimation
-        const int randomDuration = 20;
+        const int randomTestDuration = 10;
 
         long bigBlocksNumber;
 
         TestFile file;
 
-        private const long maxArraySize = 128 * 1024 * 1024; // 0.5Gb
+        private const long maxArraySize = 128 * 1024 * 1024;
 
         /// <summary>
         /// Test suite of 2 sequential and 2 random tests
@@ -27,16 +35,23 @@ namespace Saplin.StorageSpeedMeter
         /// <param name="fileSize">Test file size, default is 1Gb</param>
         /// <param name="writeBuffering">Faster writes through buffering</param>
         /// <param name="enambleMemCache">Faster reads through File Cache</param>
-        public BigTest(string drivePath, long fileSize = 1024 * 1024 * 1024, bool writeBuffering = false, bool enableMemCache = false, string filePath = null)
+        public BigTest(string drivePath, long fileSize = 1024 * 1024 * 1024, bool writeBuffering = false, MemCacheOptions memCache = MemCacheOptions.Disabled, string filePath = null)
         {
-            file = new TestFile(drivePath, writeBuffering, enableMemCache, filePath);
+            file = new TestFile(drivePath, fileSize, writeBuffering, memCache != MemCacheOptions.Disabled, filePath); // macOS and Windows mem cahce can be dissabled at OS level for specifc file handles, no such options found for Android
             this.fileSize = fileSize;
-            bigBlocksNumber = fileSize / bigBlockSize;
+            //bigBlocksNumber = fileSize / bigBlockSize;
 
-            AddTest(new SequentialWriteTest(file, bigBlockSize, bigBlocksNumber, true));
-            AddTest(new SequentialReadTest(file, bigBlockSize, (long)(bigBlocksNumber * readFileToFullRatio)));
-            AddTest(new RandomWriteTest(file, smallBlockSize, randomDuration));
-            AddTest(new RandomReadTest(file, smallBlockSize, randomDuration));
+            AddTest(new SequentialWriteTest(file, bigBlockSize, true));
+            AddTest(new SequentialReadTest(file, bigBlockSize, memCache == MemCacheOptions.DisabledEmulation ? new CachePurger(file) : null));
+
+            //AddTest(new RandomWriteTest(file, mediumBlockSize, randomTestDuration));
+            //AddTest(new RandomReadTest(file, mediumBlockSize, randomTestDuration));
+
+            AddTest(new RandomWriteTest(file, smallBlockSize, randomTestDuration));
+            AddTest(new RandomReadTest(file, smallBlockSize, randomTestDuration));
+
+            //AddTest(new RandomWriteTest(file, mediumBlockSize, randomTestDuration));
+            //AddTest(new RandomReadTest(file, mediumBlockSize, randomTestDuration, memCache == MemCacheOptions.DisabledEmulation ? new CachePurger(file) : null));
 
             SetUpRemainigCalculations();
 
@@ -59,7 +74,7 @@ namespace Saplin.StorageSpeedMeter
 
             remainingSeqWriteMs = (long)(fileSize / (avgWriteSpeedMbs * 1024 * 1024) * 1000);
             remainingSeqReadMs = (long)(readFileSize / (avgReadSpeedMbs * 1024 * 1024) * 1000);
-            remainingRandomMs = ListTests().Where(t => t.GetType().BaseType == typeof(RandomTest)).Count() * randomDuration * 1000;
+            remainingRandomMs = ListTests().Where(t => t.GetType().BaseType == typeof(RandomTest)).Count() * randomTestDuration * 1000;
 
             var remainingRandomBaseMs = remainingRandomMs;
 
@@ -98,7 +113,7 @@ namespace Saplin.StorageSpeedMeter
                 {
                     if (prevTest != sender)
                     {
-                        remainingRandomBaseMs = remainingRandomBaseMs - randomDuration * 1000;
+                        remainingRandomBaseMs = remainingRandomBaseMs - randomTestDuration * 1000;
                         prevTest = sender;
 
                     }
@@ -109,7 +124,7 @@ namespace Saplin.StorageSpeedMeter
                     }
                     else if (e.ProgressPercent != null)
                     {
-                        remainingRandomMs = (long)(remainingRandomBaseMs + randomDuration * 1000 * (1 - e.ProgressPercent / 100));
+                        remainingRandomMs = (long)(remainingRandomBaseMs + randomTestDuration * 1000 * (1 - e.ProgressPercent / 100));
                     }
                 }
                 //SequentialReadTest - SeqRead is assumed to follow SeqWrite
