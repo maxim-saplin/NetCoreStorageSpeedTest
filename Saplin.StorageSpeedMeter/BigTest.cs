@@ -20,7 +20,7 @@ namespace Saplin.StorageSpeedMeter
         public const int mediumBlockSize = 32 * 1024;
         const double readFileToFullRatio = 1.0; // sequential read can be executed only on a portion of file
         const double avgReadToWriteRatio = 1.1; // starting point for elapsed time estimation
-        const int randomTestDuration = 10;
+        const int randomTestDuration = 15;
 
         long bigBlocksNumber;
 
@@ -44,14 +44,8 @@ namespace Saplin.StorageSpeedMeter
             AddTest(new SequentialWriteTest(file, bigBlockSize, true));
             AddTest(new SequentialReadTest(file, bigBlockSize, memCache == MemCacheOptions.DisabledEmulation ? new CachePurger(file) : null));
 
-            //AddTest(new RandomWriteTest(file, mediumBlockSize, randomTestDuration));
-            //AddTest(new RandomReadTest(file, mediumBlockSize, randomTestDuration));
-
             AddTest(new RandomWriteTest(file, smallBlockSize, randomTestDuration));
-            AddTest(new RandomReadTest(file, smallBlockSize, randomTestDuration));
-
-            //AddTest(new RandomWriteTest(file, mediumBlockSize, randomTestDuration));
-            //AddTest(new RandomReadTest(file, mediumBlockSize, randomTestDuration, memCache == MemCacheOptions.DisabledEmulation ? new CachePurger(file) : null));
+            AddTest(new RandomReadTest(file, smallBlockSize, randomTestDuration, memCache == MemCacheOptions.DisabledEmulation ? new CachePurger(file) : null));
 
             SetUpRemainigCalculations();
 

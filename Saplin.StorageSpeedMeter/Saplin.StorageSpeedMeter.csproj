@@ -27,6 +27,7 @@
     <None Remove="out_w64\**" />
     <None Remove="out_win_min\**" />
     <None Remove=".gitignore" />
+    <None Remove=".DS_Store" />
   </ItemGroup>
 
   <ItemGroup>

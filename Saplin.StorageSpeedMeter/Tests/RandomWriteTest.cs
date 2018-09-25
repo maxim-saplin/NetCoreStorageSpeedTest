@@ -21,8 +21,11 @@ namespace Saplin.StorageSpeedMeter
         {
             base.ValidateAndInitParams();
 
-            minBlock = fileSize / blockSize / 2;
-            maxBlock = fileSize / blockSize - 1; // only half of the file is used to help deal with mem caching 
+            minBlock = 0;
+            maxBlock = (fileSize / blockSize) - 1;
+
+            //minBlock = fileSize / blockSize / 2;
+            //maxBlock = fileSize / blockSize - 1; // only half of the file is used to help deal with mem caching 
         }
 
         Random rand;

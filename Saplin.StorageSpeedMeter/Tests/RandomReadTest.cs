@@ -19,16 +19,23 @@ namespace Saplin.StorageSpeedMeter
         {
             base.ValidateAndInitParams();
 
-            maxBlock = (fileSize / 2 / blockSize)-1;
             minBlock = 0;
+            maxBlock = (fileSize / blockSize) - 1;
+
+            //maxBlock = (fileSize / 2 / blockSize)-1;
+            //minBlock = 0;
         }
 
-        protected override void DoOperation(byte[] buffer, Stopwatch sw, long offsetBytes, int i)
+        protected override void DoOperation(byte[] data, Stopwatch sw, long currBlock, int i)
         {
+            byte b;
             sw.Restart();
-            fileStream.Seek(offsetBytes, SeekOrigin.Begin);
-            fileStream.Read(buffer, 0, blockSize);
-            //if (flushBuf) fileStream.Flush();
+            fileStream.Seek(currBlock, SeekOrigin.Begin);
+            fileStream.Read(data, 0, blockSize);
+            //for (int k = 0; k < blockSize; k += 4)
+                //b = data[k];
+            //foreach(var b in data) // Android seems to be to much clever and not iterating throug values seems to be working like mapping file to array with no read
+            //{}
             sw.Stop();
         }
 

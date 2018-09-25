@@ -8,7 +8,8 @@ namespace Saplin.StorageSpeedMeter
     public class CachePurger : ICachePurger
     {
         const long blockSize = 128 * 1024 * 1024;
-        const long blocksToWrite = 8; //1GB
+        const long defaultMemCapacity = (long)16 * 1024 * 1024 * 1024;
+        const long blocksToWrite = 16; //1GB
         FileStream stream;
         long startPosition;
 
@@ -23,11 +24,11 @@ namespace Saplin.StorageSpeedMeter
             var blocks = new List<byte[]>();
             try
             {
-                var memCapacity = RamDiskUtil.TotalRam;
+                var memCapacity = RamDiskUtil.TotalRam == 0 ? defaultMemCapacity : RamDiskUtil.TotalRam;
                 var blocksInMemMax = memCapacity / blockSize;
                 byte[] block = null;
 
-                for (int i = 0; i < blocksInMemMax; i++)
+                for (int i = 0; i < blocksToWrite/*blocksInMemMax*/; i++)
                 {
                     block = AllocBlock();
 
@@ -54,19 +55,21 @@ namespace Saplin.StorageSpeedMeter
         public byte[] AllocBlock()
         {
             byte[] block = null;
-            MemoryFailPoint memFailPoint = null;
+            //MemoryFailPoint memFailPoint = null;
 
             try
             {
-                memFailPoint = new MemoryFailPoint((int)(blockSize / 1024 / 1024));
+                //memFailPoint = new MemoryFailPoint((int)(blockSize / 1024 / 1024));
                 block = new byte[blockSize];
+
                 block[0] = 1;
                 block[block.Length - 1] = 1;
             }
-            catch { }
+            catch(Exception ex) 
+            { }
             finally
             {
-                memFailPoint?.Dispose();
+                //memFailPoint?.Dispose();
             }
 
             return block;
