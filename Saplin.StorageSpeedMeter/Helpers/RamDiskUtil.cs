@@ -36,38 +36,6 @@ namespace Saplin.StorageSpeedMeter
         }
 #endregion
 
-        //struct vmtotal
-        //{
-        //    short t_rq;     /* length of the run queue */
-        //    short t_dw;     /* jobs in ``disk wait'' (neg priority) */
-        //    short t_pw;     /* jobs in page wait */
-        //    short t_sl;     /* jobs sleeping in core */
-        //    short t_sw;     /* swapped out runnable/short block jobs */
-        //    long t_vm;      /* total virtual memory */
-        //    long t_avm;     /* active virtual memory */
-        //    long t_rm;      /* total real memory in use */
-        //    long t_arm;     /* active real memory */
-        //    long t_vmshr;   /* shared virtual memory */
-        //    long t_avmshr;  /* active shared virtual memory */
-        //    long t_rmshr;   /* shared real memory */
-        //    long t_armshr;  /* active shared real memory */
-        //    long t_free;        /* free memory pages */
-        //};
-
-        //private static IntPtr vmtotalSize;
-
-        //private static vmtotal GetSysCtlVmTotal()
-        //{
-        //    vmtotalSize = (IntPtr)Marshal.SizeOf(typeof(vmtotal));
-        //    IntPtr vmtotalPtr = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(vmtotal)));
-
-        //    var result = sysctlbyname("vm.vmtotal", out vmtotalPtr, ref vmtotalSize, IntPtr.Zero, IntPtr.Zero);
-
-        //    var vmtotal = (vmtotal)Marshal.PtrToStructure(vmtotalPtr, typeof(vmtotal)); 
-
-        //    return vmtotal;
-        //}
-
         private static IntPtr sysCtlIntSize = (IntPtr)IntPtr.Size;
 
         public static UInt64 GetSysCtlIntegerByName(String name)
@@ -117,28 +85,67 @@ namespace Saplin.StorageSpeedMeter
             }
         }
 
+
+        private static string[] macContainsExpcetions = { "/private/var" };
+        private static string[] androidIsExpcetions = { "/", "/vendor", "/firmware", "/dsp", "/persist" };
+        private static string[] androidContainsExpcetions = { "/mnt/runtime" };
+
         public static DriveInfo[] GetEligibleDrives()
         {
-            return DriveInfo.GetDrives()
-                                      .Where(d => d.IsReady 
+            var drives = DriveInfo.GetDrives()
+                                      .Where(d => d.IsReady
                                              && (d.DriveType == DriveType.Fixed
                                                                 || d.DriveType == DriveType.Removable
-                                                                || d.DriveType == DriveType.Unknown)  
-                                             && (!d.Name.Contains("/private/var/vm")) // macOS virtual drive
-                                            ).ToArray();
+                                                                || d.DriveType == DriveType.Unknown)
+                                            );
+
+            if (RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
+            {
+                foreach (var e in macContainsExpcetions)
+                    drives = drives.Where(d => !d.Name.Contains(e));
+            }
+            else if (RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+            {
+            }
+            else // Android
+            {
+                foreach (var e in androidContainsExpcetions)
+                    drives = drives.Where(d => !d.Name.Contains(e));
+                foreach (var e in androidIsExpcetions)
+                    drives = drives.Where(d => d.Name.ToLower() != e.ToLower());
+            }
+
+            return drives.ToArray();
         }
 
         public static string GetTempFilePath(string drivePath)
         {
-            string path;
+            string path = null;
 
-            if (drivePath == "/") //Mac system disk
-                path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), fileName);
-            else 
+            if (RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
+            {
+                if (drivePath == "/") //Mac system disk
+                {
+                    path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), fileName);
+                }
+                else path = Path.Combine(drivePath, fileName);
+            }
+            else if (RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
             {
                 var sysRoot = Path.GetPathRoot(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
 
-                if (sysRoot == drivePath) path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), fileName); // Windows
+                if (sysRoot == drivePath)
+                {
+                    path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), fileName); // Windows might not allow to write to system disk root
+                }
+                else path = Path.Combine(drivePath, fileName);
+            }
+            else // Android is the 3rd supported platform
+            {
+                if (drivePath.Contains("/data")) // Internal storage, use personal folder
+                {
+                    path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), fileName);
+                }
                 else path = Path.Combine(drivePath, fileName);
             }
 
