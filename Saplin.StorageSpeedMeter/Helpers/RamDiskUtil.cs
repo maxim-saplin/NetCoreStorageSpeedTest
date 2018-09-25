@@ -87,8 +87,8 @@ namespace Saplin.StorageSpeedMeter
 
 
         private static string[] macContainsExpcetions = { "/private/var" };
-        private static string[] androidIsExpcetions = { "/", "/vendor", "/firmware", "/dsp", "/persist" };
-        private static string[] androidContainsExpcetions = { "/mnt/runtime" };
+        private static string[] androidIsExpcetions = { "/", "/vendor", "/firmware", "/dsp", "/persist", "/system", "/cache" };
+        private static string[] androidContainsExpcetions = { "/mnt/runtime", "/data/var", "/mnt/media_rw" };
 
         public static DriveInfo[] GetEligibleDrives()
         {
