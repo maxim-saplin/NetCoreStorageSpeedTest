@@ -82,6 +82,7 @@ namespace Saplin.StorageSpeedMeter
             {
                 ReadStream.Dispose();
                 WriteStream.Dispose();
+                ServiceStream.Dispose();
             }
 
             System.IO.File.Delete(path);

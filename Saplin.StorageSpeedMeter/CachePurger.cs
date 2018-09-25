@@ -36,15 +36,15 @@ namespace Saplin.StorageSpeedMeter
                     else break;
                 }
 
-                stream.Seek(startPosition, SeekOrigin.Begin);
+                //stream.Seek(startPosition, SeekOrigin.Begin);
 
-                if (blocks.Count > 0)
-                {
-                    for (int i = 0; i < blocksToWrite; i++)
-                    {
-                        stream.Write(blocks[Math.Min(i, blocks.Count - 1)], 0, blocks[Math.Min(i, blocks.Count - 1)].Length);
-                    }
-                }
+                //if (blocks.Count > 0)
+                //{
+                //    for (int i = 0; i < blocksToWrite; i++)
+                //    {
+                //        stream.Write(blocks[Math.Min(i, blocks.Count - 1)], 0, blocks[Math.Min(i, blocks.Count - 1)].Length);
+                //    }
+                //}
             }
             finally
             {
@@ -62,8 +62,7 @@ namespace Saplin.StorageSpeedMeter
                 //memFailPoint = new MemoryFailPoint((int)(blockSize / 1024 / 1024));
                 block = new byte[blockSize];
 
-                block[0] = 1;
-                block[block.Length - 1] = 1;
+                Array.Clear(block,0, block.Length);
             }
             catch(Exception ex) 
             { }
