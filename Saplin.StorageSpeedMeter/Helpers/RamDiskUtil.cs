@@ -142,7 +142,7 @@ namespace Saplin.StorageSpeedMeter
             }
             else // Android is the 3rd supported platform
             {
-                if (drivePath.Contains("/data")) // Internal storage, use personal folder
+                if (drivePath == "/data") // Internal storage, use personal folder
                 {
                     path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), fileName);
                 }
