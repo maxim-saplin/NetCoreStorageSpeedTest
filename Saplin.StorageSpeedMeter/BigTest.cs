@@ -22,8 +22,6 @@ namespace Saplin.StorageSpeedMeter
         const double avgReadToWriteRatio = 1.1; // starting point for elapsed time estimation
         const int randomTestDuration = 15;
 
-        long bigBlocksNumber;
-
         TestFile file;
 
         private const long maxArraySize = 128 * 1024 * 1024;
@@ -34,22 +32,23 @@ namespace Saplin.StorageSpeedMeter
         /// <param name="drivePath">Drive name</param>
         /// <param name="fileSize">Test file size, default is 1Gb</param>
         /// <param name="writeBuffering">Faster writes through buffering</param>
-        /// <param name="enambleMemCache">Faster reads through File Cache</param>
-        public BigTest(string drivePath, long fileSize = 1024 * 1024 * 1024, bool writeBuffering = false, MemCacheOptions memCache = MemCacheOptions.Disabled, string filePath = null)
+        /// <param name="memCache">Faster reads through File Cache</param>
+        /// <param name="filePath">Ignore drivepath, do not use auto file name generation and use absolute path to the file</param>
+        /// <param name="freeMem">Delegate that gives info about free memory, e.g. under Android when .NET Standard doesn't have the faciclity</param>
+        public BigTest(string drivePath, long fileSize = 1024 * 1024 * 1024, bool writeBuffering = false, MemCacheOptions memCache = MemCacheOptions.Disabled, string filePath = null, Func<long> freeMem = null)
         {
             file = new TestFile(drivePath, fileSize, writeBuffering, memCache != MemCacheOptions.Disabled, filePath); // macOS and Windows mem cahce can be dissabled at OS level for specifc file handles, no such options found for Android
             this.fileSize = fileSize;
-            //bigBlocksNumber = fileSize / bigBlockSize;
 
             AddTest(new SequentialWriteTest(file, bigBlockSize, true));
-            AddTest(new SequentialReadTest(file, bigBlockSize, memCache == MemCacheOptions.DisabledEmulation ? new CachePurger(file) : null));
+            AddTest(new SequentialReadTest(file, bigBlockSize, memCache == MemCacheOptions.DisabledEmulation ? new CachePurger(file, freeMem) : null));
 
             AddTest(new RandomWriteTest(file, smallBlockSize, randomTestDuration));
-            AddTest(new RandomReadTest(file, smallBlockSize, randomTestDuration, memCache == MemCacheOptions.DisabledEmulation ? new CachePurger(file) : null));
+            AddTest(new RandomReadTest(file, smallBlockSize, randomTestDuration, memCache == MemCacheOptions.DisabledEmulation ? new CachePurger(file, freeMem) : null));
 
             SetUpRemainigCalculations();
 
-            var memCopyBlocks = 24;
+            var memCopyBlocks = 96;
             const int memCopyBlockSize = 256 * 1024 * 1024;
 
             AddTest(new MemCopyTest(memCopyBlockSize, memCopyBlocks));

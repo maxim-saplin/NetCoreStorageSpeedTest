@@ -45,8 +45,14 @@ namespace Saplin.StorageSpeedMeter
             Status = TestStatus.InitMemBuffer;
 
             rand = new Random();
+            var block = new byte[blockSize];
             var data = new byte[blockSize * blocksInMemory];
-            rand.NextBytes(data);
+            for (int i = 0; i < blocksInMemory; i++)
+            {
+                if (breakCalled) return null;
+                rand.NextBytes(block);
+                Array.Copy(block, 0, data, blockSize * i, blockSize);
+            }
             return data;
         }
     }

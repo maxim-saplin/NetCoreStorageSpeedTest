@@ -95,7 +95,8 @@ namespace Saplin.StorageSpeedMeter
             Status = TestStatus.InitMemBuffer;
 
             src = new int[blockSize / sizeof(int)];
-            dst = new int[(blockSize * (totalBlocks / (Environment.Is64BitProcess ? 4 : 4 * 4))) / sizeof(int)];
+            dst = new int[(blockSize * (Environment.Is64BitProcess ? 5 : 3)) / sizeof(int)];
+            Array.Clear(dst, 0, dst.Length);
 
             var rand = new Random();
 

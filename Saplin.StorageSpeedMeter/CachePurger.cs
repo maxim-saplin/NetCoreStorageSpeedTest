@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime;
 
@@ -12,24 +13,35 @@ namespace Saplin.StorageSpeedMeter
         const long blocksToWrite = 16; //1GB
         FileStream stream;
         long startPosition;
+        Func<long> freeMem;
 
-        public CachePurger(TestFile file)
+        public CachePurger(TestFile file, Func<long> freeMem)
         {
             stream = file.ServiceStream;
             startPosition = file.TestAreaSizeBytes;
+            this.freeMem = freeMem;
         }
 
         public void Purge()
         {
+            PurgeOnce();
+            GC.Collect(2, GCCollectionMode.Forced, true);
+            //PurgeOnce();
+        }
+
+        private void PurgeOnce()
+        {
             var blocks = new List<byte[]>();
             try
             {
-                var memCapacity = RamDiskUtil.TotalRam == 0 ? defaultMemCapacity : RamDiskUtil.TotalRam;
+                var memCapacity = freeMem != null ? freeMem()
+                    : (RamDiskUtil.TotalRam == 0 ? defaultMemCapacity : RamDiskUtil.TotalRam);
                 var blocksInMemMax = memCapacity / blockSize;
                 byte[] block = null;
 
-                for (int i = 0; i < blocksToWrite/*blocksInMemMax*/; i++)
+                for (int i = 0; i < blocksInMemMax; i++)
                 {
+                    Debug.WriteLine("AllockBlock: " + i);
                     block = AllocBlock();
 
                     if (block != null) blocks.Add(block);
@@ -64,7 +76,7 @@ namespace Saplin.StorageSpeedMeter
 
                 Array.Clear(block,0, block.Length);
             }
-            catch(Exception ex) 
+            catch 
             { }
             finally
             {
