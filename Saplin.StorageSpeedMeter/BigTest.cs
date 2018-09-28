@@ -20,7 +20,7 @@ namespace Saplin.StorageSpeedMeter
         public const int mediumBlockSize = 32 * 1024;
         const double readFileToFullRatio = 1.0; // sequential read can be executed only on a portion of file
         const double avgReadToWriteRatio = 1.1; // starting point for elapsed time estimation
-        const int randomTestDuration = 15;
+        const int randomTestDuration = 10;
 
         TestFile file;
 
@@ -48,10 +48,7 @@ namespace Saplin.StorageSpeedMeter
 
             SetUpRemainigCalculations();
 
-            var memCopyBlocks = 96;
-            const int memCopyBlockSize = 256 * 1024 * 1024;
-
-            AddTest(new MemCopyTest(memCopyBlockSize, memCopyBlocks));
+            AddTest(new MemCopyTest(bigBlockSize,2048));
         }
 
         long remainingMs;
