@@ -112,7 +112,7 @@ namespace Saplin.StorageSpeedMeter
         {
             long mem = Environment.Is64BitProcess ?  1280 * 1024 * 1024 : 640 * 1024 * 1024;
 
-            if (freeMem != null) mem = Math.Min(mem, freeMem()/10*9);
+            if (freeMem != null) mem = Math.Min(mem, freeMem()/10*7);
 
             src = new int[blockSize / sizeof(int)];
             dst = new int[blockSize * (mem / blockSize) / sizeof(int)];
