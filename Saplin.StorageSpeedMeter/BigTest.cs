@@ -48,7 +48,7 @@ namespace Saplin.StorageSpeedMeter
 
             SetUpRemainigCalculations();
 
-            AddTest(new MemCopyTest(bigBlockSize,2048));
+            AddTest(new MemCopyTest(bigBlockSize, 8192, freeMem));
         }
 
         long remainingMs;

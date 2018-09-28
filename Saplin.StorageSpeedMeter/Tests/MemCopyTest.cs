@@ -8,13 +8,16 @@ namespace Saplin.StorageSpeedMeter
         private int[] src, dst;
         protected long totalBlocks;
         int current = 0;
+        Func<long> freeMem;
+        Random rand = new Random();
 
-        public MemCopyTest(int blockSize = 64*1024*1024, long totalBlocks = 96)
+        public MemCopyTest(int blockSize = 64*1024*1024, long totalBlocks = 96, Func<long> freeMem = null)
         {
             if (blockSize <= 0) throw new ArgumentOutOfRangeException("blockSize", "Block size cant be negative");
             if (totalBlocks < 0) throw new ArgumentOutOfRangeException("totalBlocks", "Block number cant be negative");
             this.blockSize = blockSize;
             this.totalBlocks = totalBlocks;
+            this.freeMem = freeMem;
         }
 
         public override string DisplayName { get => "Memory copy" + " [" + blockSize / 1024 / 1024 + "MB] block"; }
@@ -26,6 +29,7 @@ namespace Saplin.StorageSpeedMeter
             try
             {
                 Status = TestStatus.InitMemBuffer;
+                CleanUp();
                 InitBuffers();
             }
             catch
@@ -80,20 +84,23 @@ namespace Saplin.StorageSpeedMeter
             Buffer.BlockCopy(src, 0, dst, current, src.Length);
             sw.Stop();
             current += blockSize / sizeof(int);
+            src[0] = rand.Next();
 
             if (current >= dst.Length)
             {
-                CleanUp();
+                //CleanUp();
 
-                try
-                {
-                    InitBuffers();
-                }
-                catch
-                {
-                    Status = TestStatus.NotEnoughMemory;
-                    return false;
-                }
+                //try
+                //{
+                //    InitBuffers();
+                //}
+                //catch
+                //{
+                //    Status = TestStatus.NotEnoughMemory;
+                //    return false;
+                //}
+                for (int i = 0; i < src.Length; i+=16)
+                    src[i] = rand.Next();
 
                 current = 0;
             }
@@ -103,14 +110,13 @@ namespace Saplin.StorageSpeedMeter
 
         protected void InitBuffers()
         {
-            const int mem64 = 1280 * 1024 * 1024;
-            const int mem32 = 640 * 1024 * 1024;
+            long mem = Environment.Is64BitProcess ?  1280 * 1024 * 1024 : 640 * 1024 * 1024;
+
+            if (freeMem != null) mem = Math.Min(mem, freeMem()/10*9);
 
             src = new int[blockSize / sizeof(int)];
-            dst = new int[(blockSize * (Environment.Is64BitProcess ? mem64/blockSize : mem32/blockSize)) / sizeof(int)];
+            dst = new int[blockSize * (mem / blockSize) / sizeof(int)];
             Array.Clear(dst, 0, dst.Length);
-
-            var rand = new Random();
 
             for (int i = 0; i < src.Length; i++)
                 src[i] = rand.Next();
