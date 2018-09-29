@@ -25,6 +25,7 @@ namespace Saplin.StorageSpeedMeter
         public override TestResults Execute()
         {
             Status = TestStatus.Started;
+            var results = new TestResults(this);
 
             try
             {
@@ -34,12 +35,11 @@ namespace Saplin.StorageSpeedMeter
             }
             catch
             {
-                Status = TestStatus.NotEnoughMemory;
-                return null;
+                NotEnoughMemUpdate(results, 0);
+                return results;
             }
 
             var sw = new Stopwatch();
-            var results = new TestResults(this);
 
             int prevPercent = -1;
             int curPercent = -1;
