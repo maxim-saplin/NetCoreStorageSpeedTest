@@ -48,6 +48,8 @@ namespace Saplin.StorageSpeedMeter
 
             Status = TestStatus.Running;
 
+            current = 0;
+
             for (var i = 1; i < totalBlocks + 1; i++)
             {
                 if (breakCalled)
@@ -78,28 +80,21 @@ namespace Saplin.StorageSpeedMeter
 
         protected bool DoOperation(Stopwatch sw)
         {
-            var rand = new Random();
+            int i;
 
             sw.Restart();
-            Buffer.BlockCopy(src, 0, dst, current, src.Length);
+            //Buffer.BlockCopy(src, 0, dst, current, src.Length);
+            Array.Copy(src, 0, dst, current, src.Length);
+            //for (i = 0; i < src.Length; i++)
+                //dst[i+current] = src[i];
+
             sw.Stop();
-            current += blockSize / sizeof(int);
+            current += src.Length;
             src[0] = rand.Next();
 
             if (current >= dst.Length)
             {
-                //CleanUp();
-
-                //try
-                //{
-                //    InitBuffers();
-                //}
-                //catch
-                //{
-                //    Status = TestStatus.NotEnoughMemory;
-                //    return false;
-                //}
-                for (int i = 0; i < src.Length; i+=16)
+                for (i = 0; i < src.Length; i+=16)
                     src[i] = rand.Next();
 
                 current = 0;
@@ -110,15 +105,18 @@ namespace Saplin.StorageSpeedMeter
 
         protected void InitBuffers()
         {
-            long mem = Environment.Is64BitProcess ?  1280 * 1024 * 1024 : 640 * 1024 * 1024;
+            long mem = Environment.Is64BitProcess ?  512 * 1024 * 1024 : 256 * 1024 * 1024;
 
             if (freeMem != null) mem = Math.Min(mem, freeMem()/10*7);
+            var dstLength = blockSize * (mem / blockSize) / sizeof(int);
 
-            src = new int[blockSize / sizeof(int)];
-            dst = new int[blockSize * (mem / blockSize) / sizeof(int)];
+            if (dstLength < 4*blockSize / sizeof(int)) throw new OutOfMemoryException();
+
+            dst = new int[dstLength];
             Array.Clear(dst, 0, dst.Length);
 
-            for (int i = 0; i < src.Length; i++)
+            src = new int[blockSize / sizeof(int)];
+            for (int i = 0; i < src.Length; i+=4)
                 src[i] = rand.Next();
 
         }
