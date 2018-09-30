@@ -15,20 +15,28 @@ namespace Saplin.StorageSpeedMeter
         FileStream stream;
         long startPosition;
         Func<long> freeMem;
+        Func<bool> checkBreakCalled;
         Random rand = new Random();
 
-        public CachePurger(TestFile file, Func<long> freeMem)
+        public CachePurger(TestFile file, Func<long> freeMem, Func<bool> checkBreakCalled)
         {
             stream = file.ServiceStream;
             startPosition = file.TestAreaSizeBytes;
             this.freeMem = freeMem;
+            this.checkBreakCalled = checkBreakCalled;
         }
 
         public void Purge()
         {
-            PurgeOnce();
-            GC.Collect(2, GCCollectionMode.Forced, true);
-            //PurgeOnce();
+            if (checkBreakCalled()) return;
+            try
+            {
+                PurgeOnce();
+            }
+            finally
+            {
+                GC.Collect(2, GCCollectionMode.Forced, true);
+            }
         }
 
         private void PurgeOnce()
@@ -43,6 +51,7 @@ namespace Saplin.StorageSpeedMeter
 
                 for (int i = 0; i < blocksInMemMax; i++)
                 {
+                    if (checkBreakCalled()) return;
                     Debug.WriteLine("AllockBlock: " + i);
                     block = AllocBlock();
 
@@ -62,6 +71,8 @@ namespace Saplin.StorageSpeedMeter
                 {
                     for (int i = 0; i < blocksToWrite; i++)
                     {
+                        if (checkBreakCalled()) return;
+
                         if (fileExtra >= fileExtraToUse)
                         {
                             stream.Seek(startPosition, SeekOrigin.Begin);
@@ -93,8 +104,10 @@ namespace Saplin.StorageSpeedMeter
                 //memFailPoint = new MemoryFailPoint((int)(blockSize / 1024 / 1024));
                 block = new byte[blockSize];
 
+                if (checkBreakCalled()) return null;
                 Array.Clear(block,0, block.Length);
 
+                if (checkBreakCalled()) return null;
                 for (int i = 0; i < block.Length; i+=64)
                     block[i] = (byte)rand.Next();
 
