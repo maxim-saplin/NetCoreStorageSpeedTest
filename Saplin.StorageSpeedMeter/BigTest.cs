@@ -34,7 +34,7 @@ namespace Saplin.StorageSpeedMeter
         /// <param name="writeBuffering">Faster writes through buffering</param>
         /// <param name="memCache">Faster reads through File Cache</param>
         /// <param name="filePath">Ignore drivepath, do not use auto file name generation and use absolute path to the file</param>
-        /// <param name="freeMem">Delegate that gives info about free memory, e.g. under Android when .NET Standard doesn't have the faciclity</param>
+        /// <param name="freeMem">Delegate that gives info about free memory and used for mem cahche purging, e.g. under Android when .NET Standard doesn't have the faciclity to request free memory the info should go from caller</param>
         public BigTest(string drivePath, long fileSize = 1024 * 1024 * 1024, bool writeBuffering = false, MemCacheOptions memCache = MemCacheOptions.Disabled, string filePath = null, Func<long> freeMem = null)
         {
             Func<bool> checkBreakCalled = () => breakCalled;

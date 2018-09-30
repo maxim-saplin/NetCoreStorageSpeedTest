@@ -24,6 +24,8 @@ namespace Saplin.StorageSpeedMeter
             startPosition = file.TestAreaSizeBytes;
             this.freeMem = freeMem;
             this.checkBreakCalled = checkBreakCalled;
+
+            if (checkBreakCalled == null) throw new ArgumentException("checkBreakCalled can't be null");
         }
 
         public void Purge()
