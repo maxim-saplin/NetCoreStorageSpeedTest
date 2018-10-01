@@ -44,8 +44,6 @@ namespace Saplin.StorageSpeedMeter
 
             Status = TestStatus.Running;
 
-            current = 0;
-
             for (var i = 1; i < totalBlocks + 1; i++)
             {
                 if (breakCalled)
