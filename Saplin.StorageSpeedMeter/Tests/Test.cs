@@ -30,7 +30,13 @@ namespace Saplin.StorageSpeedMeter
 
         protected void FinalUpdate(TestResults results, long elapsedMs)
         {
-            status = TestStatus.Completed; // do not assign property to avoid unnecessary event firing, it will follow
+            status = TestStatus.Completed; // do not assign property to avoid unnecessary event firing thet follows
+            Update(100, null, elapsedMs, results);
+        }
+
+        protected void NotEnoughMemUpdate(TestResults results, long elapsedMs)
+        {
+            status = TestStatus.NotEnoughMemory; // do not assign property to avoid unnecessary event firing thet follows
             Update(100, null, elapsedMs, results);
         }
 

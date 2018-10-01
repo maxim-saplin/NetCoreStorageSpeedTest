@@ -20,7 +20,7 @@ namespace Saplin.StorageSpeedMeter
         public const int mediumBlockSize = 32 * 1024;
         const double readFileToFullRatio = 1.0; // sequential read can be executed only on a portion of file
         const double avgReadToWriteRatio = 1.1; // starting point for elapsed time estimation
-        const int randomTestDuration = 10;
+        const int randomTestDuration = 7;
 
         TestFile file;
 
@@ -34,21 +34,26 @@ namespace Saplin.StorageSpeedMeter
         /// <param name="writeBuffering">Faster writes through buffering</param>
         /// <param name="memCache">Faster reads through File Cache</param>
         /// <param name="filePath">Ignore drivepath, do not use auto file name generation and use absolute path to the file</param>
-        /// <param name="freeMem">Delegate that gives info about free memory, e.g. under Android when .NET Standard doesn't have the faciclity</param>
+        /// <param name="freeMem">Delegate that gives info about free memory and used for mem cahche purging, e.g. under Android when .NET Standard doesn't have the faciclity to request free memory the info should go from caller</param>
         public BigTest(string drivePath, long fileSize = 1024 * 1024 * 1024, bool writeBuffering = false, MemCacheOptions memCache = MemCacheOptions.Disabled, string filePath = null, Func<long> freeMem = null)
         {
+            Func<bool> checkBreakCalled = () => breakCalled;
+
             file = new TestFile(drivePath, fileSize, writeBuffering, memCache != MemCacheOptions.Disabled, filePath); // macOS and Windows mem cahce can be dissabled at OS level for specifc file handles, no such options found for Android
             this.fileSize = fileSize;
 
             AddTest(new SequentialWriteTest(file, bigBlockSize, true));
-            AddTest(new SequentialReadTest(file, bigBlockSize, memCache == MemCacheOptions.DisabledEmulation ? new CachePurger(file, freeMem) : null));
+            AddTest(new SequentialReadTest(file, bigBlockSize, memCache == MemCacheOptions.DisabledEmulation ? new CachePurger(file, freeMem, checkBreakCalled) : null));
 
             AddTest(new RandomWriteTest(file, smallBlockSize, randomTestDuration));
-            AddTest(new RandomReadTest(file, smallBlockSize, randomTestDuration, memCache == MemCacheOptions.DisabledEmulation ? new CachePurger(file, freeMem) : null));
+            AddTest(new RandomWriteTest(file, mediumBlockSize, randomTestDuration));
+
+            AddTest(new RandomReadTest(file, smallBlockSize, randomTestDuration, memCache == MemCacheOptions.DisabledEmulation ? new CachePurger(file, freeMem, checkBreakCalled) : null));
+            AddTest(new RandomReadTest(file, mediumBlockSize, randomTestDuration, memCache == MemCacheOptions.DisabledEmulation ? new CachePurger(file, freeMem, checkBreakCalled) : null));
 
             SetUpRemainigCalculations();
 
-            AddTest(new MemCopyTest(bigBlockSize,2048));
+            AddTest(new MemCopyTest(bigBlockSize, 8192, freeMem));
         }
 
         long remainingMs;
