@@ -12,6 +12,7 @@ namespace Saplin.StorageSpeedMeter
         const long defaultMemCapacity = (long)16 * 1024 * 1024 * 1024;
         const long blocksToWrite = 16; //1GB
         const long fileExtraToUse = 256 * 1024 * 1024;
+        const int purgeTimeMs = 7000;
         FileStream stream;
         long startPosition;
         Func<long> freeMem;
@@ -46,7 +47,7 @@ namespace Saplin.StorageSpeedMeter
             var blocks = new List<byte[]>();
             try
             {
-                var memCapacity = freeMem != null ? freeMem()*8/10 // Android can kill process if mem comes to end
+                var memCapacity = freeMem != null ? freeMem() * 8 / 10 // Android can kill process if mem comes to end
                     : (RamDiskUtil.TotalRam == 0 ? defaultMemCapacity : RamDiskUtil.TotalRam);
                 var blocksInMemMax = memCapacity / blockSize;
                 byte[] block = null;
@@ -62,7 +63,7 @@ namespace Saplin.StorageSpeedMeter
                 }
 
                 stream.Seek(startPosition, SeekOrigin.Begin);
-                var fileExtra = 0;
+                long fileExtra = 0;
                 var blockIndex = 0;
 
                 if (blocks.Count > 0) blocks.RemoveAt(blocks.Count - 1); // JIC remove few blocks and let GC free up mem if needed
@@ -71,25 +72,32 @@ namespace Saplin.StorageSpeedMeter
 
                 if (blocks.Count > 0)
                 {
+                    var sw = new Stopwatch();
+                    sw.Start();
                     for (int i = 0; i < blocksToWrite; i++)
                     {
-                        if (checkBreakCalled()) return;
+                        if (checkBreakCalled() || sw.ElapsedMilliseconds > purgeTimeMs) return;
 
                         if (fileExtra >= fileExtraToUse)
                         {
-                            stream.Seek(startPosition, SeekOrigin.Begin);
+                            stream.Seek(startPosition + blockSize, SeekOrigin.Begin);
                             fileExtra = 0;
                         }
 
                         if (blockIndex >= blocks.Count) blockIndex = 0;
 
                         for (int k = 0; k < block.Length; k += 64)
-                            block[k] = (byte)rand.Next();
+                            blocks[blockIndex][k] = (byte)rand.Next();
 
                         stream.Write(blocks[blockIndex], 0, blocks[blockIndex].Length);
+
+                        fileExtra += blockSize;
+                        blockIndex++;
                     }
+                    sw.Stop();
                 }
             }
+            catch{}
             finally
             {
                 blocks = null;

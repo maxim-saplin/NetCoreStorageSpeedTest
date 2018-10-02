@@ -8,6 +8,7 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <PlatformTarget>AnyCPU</PlatformTarget>
+    <OutputPath>C:\Dropbox\DiskTest\_Src\CrossPlatformDiskTest.git\References\</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>

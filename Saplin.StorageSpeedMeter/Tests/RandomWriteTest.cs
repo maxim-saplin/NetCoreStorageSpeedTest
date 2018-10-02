@@ -32,7 +32,7 @@ namespace Saplin.StorageSpeedMeter
 
         protected override void DoOperation(byte[] data, Stopwatch sw, long currBlock, int i)
         {
-            data[rand.Next(data.Length)] = (byte)rand.Next(); //change the block, JIC there's some clever cachning noticing same block is being writen
+            data[0] = (byte)rand.Next(); //change the block, JIC there's some clever cachning noticing same block is being writen
             sw.Restart();
             fileStream.Seek(currBlock, SeekOrigin.Begin);
             fileStream.Write(data, i % blocksInMemory, blockSize);

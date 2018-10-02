@@ -67,6 +67,8 @@ namespace Saplin.StorageSpeedMeter
             ValidateAndInitParams();
             GeneratePositionsPlan();
 
+            var results = new TestResults(this);
+
             byte[] data = null;
 
             try
@@ -75,8 +77,8 @@ namespace Saplin.StorageSpeedMeter
             }
             catch
             {
-                Status = TestStatus.NotEnoughMemory;
-                return null;
+                NotEnoughMemUpdate(results, 0);
+                return results;
             }
 
             if (cachePurger != null)
@@ -86,7 +88,6 @@ namespace Saplin.StorageSpeedMeter
             }
 
             var sw = new Stopwatch();
-            var results = new TestResults(this);
 
             int prevPercent = -1;
             int curPercent = -1;

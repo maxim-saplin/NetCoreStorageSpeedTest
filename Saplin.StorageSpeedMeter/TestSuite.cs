@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime;
 
 namespace Saplin.StorageSpeedMeter
 {
@@ -73,11 +74,20 @@ namespace Saplin.StorageSpeedMeter
                 completedTests++;
 
                 if (breakCalled) break;
+
+                CleanUp();
             }
 
             sw.Stop();
 
             return results.ToArray();
+        }
+
+        private static void CleanUp()
+        {
+            GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+            GC.Collect(2, GCCollectionMode.Forced, true, true);
+            GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.Default;
         }
 
         public string[] ExportToCsv(string folderPath, bool saveAllDataPoints, DateTime? dateTime = null, string separator = ";", string decimalSeparator = ",")
