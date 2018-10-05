@@ -232,13 +232,6 @@ namespace Saplin.StorageSpeedMeter
             AddResultInternal(result, position);
         }
 
-        public void AddTroughputMbs(long bytes, Stopwatch stopwatch)
-        {
-            double nanosecs = (double)stopwatch.ElapsedTicks * 1000000000 / Stopwatch.Frequency;
-
-            AddResult(((double)bytes / 1024 / 1024) / (double)(nanosecs) * 1000 * 1000 * 1000);
-        }
-
         public void AddTroughputMbs(long bytes, long position, Stopwatch stopwatch)
         {
             double secs = (double)stopwatch.ElapsedTicks / Stopwatch.Frequency;
