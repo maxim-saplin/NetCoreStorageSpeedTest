@@ -42,6 +42,11 @@ namespace Saplin.StorageSpeedMeter
             positionsPlan = new long[Math.Min(maxBlock - minBlock, maxBlocksInTest)];
             for (long i = 0; i < positionsPlan.Length - 1; i++)
                 positionsPlan[i] = i*blockSize;
+
+            // EACH SECOND BLOCK
+            //for (long i = 0; i < positionsPlan.Length/2 - 1; i++)
+              //  positionsPlan[i] = i*2 * blockSize;
+
             Shuffle(positionsPlan);
         }
 
@@ -136,6 +141,11 @@ namespace Saplin.StorageSpeedMeter
             results.TotalTimeMs = elapsed.ElapsedMilliseconds;
 
             FinalUpdate(results, elapsed.ElapsedMilliseconds);
+
+            if (cachePurger != null)
+            {
+                cachePurger.Release();
+            }
 
             return results;
         }

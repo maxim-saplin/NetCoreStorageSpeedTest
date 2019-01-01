@@ -8,7 +8,7 @@ namespace Saplin.StorageSpeedMeter
 {
     public class CachePurger : ICachePurger
     {
-        const long blockSize = 64 * 1024 * 1024;
+        const long blockSize = 16 * 1024 * 1024;
         const long defaultMemCapacity = (long)16 * 1024 * 1024 * 1024;
         const long blocksToWrite = 16; //1GB
         const long fileExtraToUse = 256 * 1024 * 1024;
@@ -38,16 +38,26 @@ namespace Saplin.StorageSpeedMeter
             }
             finally
             {
-                GC.Collect(2, GCCollectionMode.Forced, true);
+
             }
         }
 
+        public void Release()
+        {
+            blocks = null;
+            GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+            GC.Collect(2, GCCollectionMode.Forced, true, true);
+            Debug.WriteLine("Blocks release, GC.Collect called");
+        }
+
+        List<byte[]> blocks = null;
+
         private void PurgeOnce()
         {
-            var blocks = new List<byte[]>();
+            blocks = new List<byte[]>();
             try
             {
-                var memCapacity = freeMem != null ? freeMem() * 8 / 10 // Android can kill process if mem comes to end
+                var memCapacity = freeMem != null ? freeMem() * 87 / 100 // Android can kill process if mem comes to end
                     : (RamDiskUtil.TotalRam == 0 ? defaultMemCapacity : RamDiskUtil.TotalRam);
                 var blocksInMemMax = memCapacity / blockSize;
                 byte[] block = null;
@@ -76,7 +86,7 @@ namespace Saplin.StorageSpeedMeter
                     sw.Start();
                     for (int i = 0; i < blocksToWrite; i++)
                     {
-                        if (checkBreakCalled() || sw.ElapsedMilliseconds > purgeTimeMs) return;
+                        if (checkBreakCalled() || sw.ElapsedMilliseconds > purgeTimeMs) { return; }
 
                         if (fileExtra >= fileExtraToUse)
                         {
@@ -100,7 +110,7 @@ namespace Saplin.StorageSpeedMeter
             catch{}
             finally
             {
-                blocks = null;
+                //blocks = null;
             }
         }
 

@@ -176,11 +176,15 @@ namespace Saplin.StorageSpeedMeter
 
             if (recalcCount != results.Count)
             {
-                results.Sort();
-                min = results[0];
-                max = results[results.Count - 1];
-                minN = results[(int)(results.Count * .01)];
-                maxN = results[(int)(results.Count * 0.99)];
+                var sorted = new double[results.Count];
+                results.CopyTo(sorted);
+
+                Array.Sort(sorted);
+
+                min = sorted[0];
+                max = sorted[results.Count - 1];
+                minN = sorted[(int)(results.Count * .01)];
+                maxN = sorted[(int)(results.Count * 0.99)];
                 mean = results.Average<double>(tr => tr);
 
                 double inverseThroughputs = 0;// results.Select<double, double>(r => 1 / r).Sum();

@@ -88,6 +88,11 @@ namespace Saplin.StorageSpeedMeter
 
             FinalUpdate(results, ElapsedMs);
 
+            if (cachePurger != null)
+            {
+                cachePurger.Release();
+            }
+
             TestCompleted();
 
             return results;

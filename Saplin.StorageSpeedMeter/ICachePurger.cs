@@ -3,5 +3,6 @@
     public interface ICachePurger
     {
         void Purge();
+        void Release();
     }
 }

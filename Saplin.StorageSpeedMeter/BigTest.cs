@@ -35,7 +35,7 @@ namespace Saplin.StorageSpeedMeter
         /// <param name="memCache">Faster reads through File Cache</param>
         /// <param name="filePath">Ignore drivepath, do not use auto file name generation and use absolute path to the file</param>
         /// <param name="freeMem">Delegate that gives info about free memory and used for mem cahche purging, e.g. under Android when .NET Standard doesn't have the faciclity to request free memory the info should go from caller</param>
-        public BigTest(string drivePath, long fileSize = 1024 * 1024 * 1024, bool writeBuffering = false, MemCacheOptions memCache = MemCacheOptions.Disabled, string filePath = null, Func<long> freeMem = null)
+        public BigTest(string drivePath, long fileSize = 1024 * 1024 * 1024, bool writeBuffering = false, MemCacheOptions memCache = MemCacheOptions.Disabled, string filePath = null, Func<long> freeMem = null, bool tests32k = false)
         {
             Func<bool> checkBreakCalled = () => breakCalled;
 
@@ -46,10 +46,10 @@ namespace Saplin.StorageSpeedMeter
             AddTest(new SequentialReadTest(file, bigBlockSize, memCache == MemCacheOptions.DisabledEmulation ? new CachePurger(file, freeMem, checkBreakCalled) : null));
 
             AddTest(new RandomWriteTest(file, smallBlockSize, randomTestDuration));
-            AddTest(new RandomWriteTest(file, mediumBlockSize, randomTestDuration));
+            if (tests32k) AddTest(new RandomWriteTest(file, mediumBlockSize, randomTestDuration));
 
             AddTest(new RandomReadTest(file, smallBlockSize, randomTestDuration, memCache == MemCacheOptions.DisabledEmulation ? new CachePurger(file, freeMem, checkBreakCalled) : null));
-            AddTest(new RandomReadTest(file, mediumBlockSize, randomTestDuration, memCache == MemCacheOptions.DisabledEmulation ? new CachePurger(file, freeMem, checkBreakCalled) : null));
+            if (tests32k) AddTest(new RandomReadTest(file, mediumBlockSize, randomTestDuration, memCache == MemCacheOptions.DisabledEmulation ? new CachePurger(file, freeMem, checkBreakCalled) : null));
 
             SetUpRemainigCalculations();
 
