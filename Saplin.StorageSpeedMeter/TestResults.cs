@@ -12,7 +12,8 @@ namespace Saplin.StorageSpeedMeter
     public class TestResults : IEnumerable<double>, IEnumerable<Tuple<double, long>>
     { 
         private int recalcCount = -1;
-        private double min, minN, max, maxN, mean, avgThroughput, avgThroughputNormalized;
+        private double min, minN, max, maxN, mean, avgThroughputReal, avgThroughputNormalized;
+        private const double normalizationTimeThreshold = 0.95;
         private long totalTimeMs;
 
         const int intialCapacity = 300000; //enough to store results on 64k block reads within 16Gig file
@@ -25,11 +26,16 @@ namespace Saplin.StorageSpeedMeter
         {
             results = new List<double>(intialCapacity);
             positions = new List<long>();
+
             TestDisplayName = test.DisplayName;
             BlockSizeBytes = test.BlockSizeBytes;
             TestName = test.Name;
             TestType = test.GetType();
+
+            UseNormalizedAvg = test.IsNormalizedAvg;
         }
+
+        public bool UseNormalizedAvg { get; set; }
 
         public Type TestType { get; private set; }
 
@@ -49,10 +55,6 @@ namespace Saplin.StorageSpeedMeter
 
                 return min;
             }
-            protected set
-            {
-                min = value;
-            }
         }
 
         public double Max
@@ -62,10 +64,6 @@ namespace Saplin.StorageSpeedMeter
                 Recalculate();
 
                 return max;
-            }
-            protected set
-            {
-                max = value;
             }
         }
 
@@ -80,10 +78,6 @@ namespace Saplin.StorageSpeedMeter
 
                 return minN;
             }
-            protected set
-            {
-                minN = value;
-            }
         }
 
         /// <summary>
@@ -97,10 +91,6 @@ namespace Saplin.StorageSpeedMeter
 
                 return maxN;
             }
-            protected set
-            {
-                maxN = value;
-            }
         }
 
         public double Mean
@@ -111,14 +101,10 @@ namespace Saplin.StorageSpeedMeter
 
                 return mean;
             }
-            protected set
-            {
-                mean = value;
-            }
         }
 
         /// <summary>
-        /// // Average throughput is not equal to mean of all thoughput measure and is calculated assuming that average equals to Total Traffic over Total Time
+        /// // Average throughput, either real or normalized
         /// </summary>
         public double AvgThroughput
         {
@@ -126,19 +112,15 @@ namespace Saplin.StorageSpeedMeter
             {
                 Recalculate();
 
-                return avgThroughput;
-            }
-            protected set
-            {
-                avgThroughput = value;
+                return UseNormalizedAvg ? avgThroughputNormalized : avgThroughputReal;
             }
         }
 
         /// <summary>
         /// Throughput normalization assumes that some of the read measurements may come from RAM cache, rather than storage device, 
-        /// and thus show speed of RAM, rather than storage device. After investigating histograms of test results (HDD, SSD), significant
-        /// number of measurements where 20 - 200x higher than average. As a rule of thumb, the following conditions rule out  cached resuls:
-        /// Max is 24x or more times higher than average, only values that are below 1.1 average are used for normalized trhoughput calculation
+        /// and thus show speed of RAM, rather than storage device. To cancel out outliers test results are sorted ascending,
+        /// total running time is calcuculated (as if in real test the speed was increasing gradually) and only those measures
+        /// which account for 95% are used for avg calculation
         /// </summary>
         public double AvgThroughputNormalized
         {
@@ -148,9 +130,18 @@ namespace Saplin.StorageSpeedMeter
 
                 return avgThroughputNormalized;
             }
-            protected set
+        }
+
+        /// <summary>
+        /// // Average throughput is not equal to mean of all thoughput measure and is calculated assuming that average equals to Total Traffic over Total Time
+        /// </summary>
+        public double AvgThroughputReal
+        {
+            get
             {
-                avgThroughputNormalized = value;
+                Recalculate();
+
+                return avgThroughputReal;
             }
         }
 
@@ -182,32 +173,40 @@ namespace Saplin.StorageSpeedMeter
                 Array.Sort(sorted);
 
                 min = sorted[0];
-                max = sorted[results.Count - 1];
-                minN = sorted[(int)(results.Count * .01)];
-                maxN = sorted[(int)(results.Count * 0.99)];
-                mean = results.Average<double>(tr => tr);
+                max = sorted[sorted.Length - 1];
+                minN = sorted[(int)(sorted.Length * .01)];
+                maxN = sorted[(int)(sorted.Length * 0.99)];
+                //mean = results.Average<double>(tr => tr);
 
                 double inverseThroughputs = 0;// results.Select<double, double>(r => 1 / r).Sum();
-                double inverseNormThroughputs = 0;
-                int inverseNormCount = 0;
 
-                foreach (var r in results)
-                    inverseThroughputs += 1 / r;
+                double totalTime = 0;
+                mean = 0;
 
-                avgThroughput = results.Count / inverseThroughputs; // AvgThougput = [TotalTrafic] / [TotalTime] ___OR___ [Number of thoughput measures] / SUM OF [1 / (Nth throughput measure)]
-
-                if (avgThroughput < max / 20) // More actual for HDD 
+                foreach (var r in sorted)
                 {
-                    foreach (var r in results)
-                        if (r < avgThroughput * 10)
-                        {
-                            inverseNormThroughputs += 1 / r;
-                            inverseNormCount++;
-                        }
-
-                    avgThroughputNormalized = inverseNormCount / inverseNormThroughputs;
+                    inverseThroughputs += 1 / r;
+                    mean += r;
+                    totalTime += BlockSizeBytes / (r * 1024 * 1024);
                 }
-                else avgThroughputNormalized = avgThroughput;
+
+                mean = mean / sorted.Length;
+
+                avgThroughputReal = sorted.Length / inverseThroughputs; // AvgThougput = [TotalTrafic] / [TotalTime] ___OR___ [Number of thoughput measures] / SUM OF [1 / (Nth throughput measure)]
+
+                double inverseNormThroughputs = 0;
+                int inverseNormCount = 1;
+                double normTime = 0;
+
+                foreach (var r in sorted)
+                {
+                    inverseNormThroughputs += 1 / r;
+                    normTime += BlockSizeBytes / (r * 1024 * 1024);
+                    if (normTime > normalizationTimeThreshold * totalTime) break;
+                    inverseNormCount++;
+                }
+
+                avgThroughputNormalized = inverseNormCount / inverseNormThroughputs;
 
                 recalcCount = results.Count;
             }

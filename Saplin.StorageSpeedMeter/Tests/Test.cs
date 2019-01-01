@@ -12,6 +12,7 @@ namespace Saplin.StorageSpeedMeter
         public abstract TestResults Execute();
         public abstract string DisplayName { get; }
         public string Name { get; set; }
+        public bool IsNormalizedAvg { get; set; }
         public event EventHandler<TestUpdateEventArgs> StatusUpdate;
         protected int blockSize;
 
