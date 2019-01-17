@@ -6,10 +6,12 @@ namespace Saplin.StorageSpeedMeter
     public class SequentialWriteTest : SequentialTest
     {
         private bool flushBuf = false;
+        private Action flush;
 
         public SequentialWriteTest(TestFile file, int blockSize, bool warmUp) : base(file.WriteStream, blockSize, file.TestAreaSizeBytes/blockSize, warmUp)
         {
-            flushBuf = !file.writeBuffering;
+            flushBuf = file.flushWrites;
+            flush = file.flush;
         }
 
         public override string DisplayName { get => "Sequential write" + " [" + blockSize / 1024 / 1024 + "MB] block"; }
@@ -18,7 +20,10 @@ namespace Saplin.StorageSpeedMeter
         {
             sw.Restart();
             fileStream.Write(buffer, 0, blockSize);
-            if (flushBuf) fileStream.Flush(true);
+            if (flushBuf)
+            {
+                if (flush == null) fileStream.Flush(true); else flush();
+            }
             sw.Stop();
         }
 

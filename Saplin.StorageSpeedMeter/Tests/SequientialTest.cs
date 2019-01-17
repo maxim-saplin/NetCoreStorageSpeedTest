@@ -32,7 +32,7 @@ namespace Saplin.StorageSpeedMeter
             {
                 data = InitBuffer();
             }
-            catch(Exception ex)
+            catch
             {
                 Status = TestStatus.NotEnoughMemory;
                 return null;

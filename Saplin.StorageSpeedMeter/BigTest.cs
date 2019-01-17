@@ -26,8 +26,10 @@ namespace Saplin.StorageSpeedMeter
 
         private const long maxArraySize = 128 * 1024 * 1024;
 
+        private WriteBufferFlusher flusher = null;
+
         /// <summary>
-        /// Test suite of 2 sequential and 2 random tests
+        /// Test suite of 2 sequential, 2 random tests and mem copy
         /// </summary>
         /// <param name="drivePath">Drive name</param>
         /// <param name="fileSize">Test file size, default is 1Gb</param>
@@ -35,11 +37,13 @@ namespace Saplin.StorageSpeedMeter
         /// <param name="memCache">Faster reads through File Cache</param>
         /// <param name="filePath">Ignore drivepath, do not use auto file name generation and use absolute path to the file</param>
         /// <param name="freeMem">Delegate that gives info about free memory and used for mem cahche purging, e.g. under Android when .NET Standard doesn't have the faciclity to request free memory the info should go from caller</param>
-        public BigTest(string drivePath, long fileSize = 1024 * 1024 * 1024, bool writeBuffering = false, MemCacheOptions memCache = MemCacheOptions.Disabled, string filePath = null, Func<long> freeMem = null, bool tests32k = false)
+        public BigTest(string drivePath, long fileSize = 1024 * 1024 * 1024, bool writeBuffering = false, MemCacheOptions memCache = MemCacheOptions.Disabled, string filePath = null, Func<long> freeMem = null, WriteBufferFlusher flusher = null, bool tests32k = false)
         {
             Func<bool> checkBreakCalled = () => breakCalled;
 
-            file = new TestFile(drivePath, fileSize, writeBuffering, memCache != MemCacheOptions.Disabled, filePath); // macOS and Windows mem cahce can be dissabled at OS level for specifc file handles, no such options found for Android
+            this.flusher = flusher;
+
+            file = new TestFile(drivePath, fileSize, writeBuffering, memCache != MemCacheOptions.Disabled, filePath, flusher?.Flush); // macOS and Windows mem cahce can be dissabled at OS level for specifc file handles, no such options found for Android
             this.fileSize = fileSize;
 
             AddTest(new SequentialWriteTest(file, bigBlockSize, true));
@@ -141,7 +145,11 @@ namespace Saplin.StorageSpeedMeter
         {
             writeScore = readScore = null;
 
+            flusher?.OpenFile(file.Path);
+
             var results = base.Execute();
+
+            flusher?.CloseFile();
 
             return results;
         }
@@ -300,6 +308,7 @@ namespace Saplin.StorageSpeedMeter
             if (disposing)
             {
                 file?.Dispose();
+                flusher?.CloseFile();
             }
         }
 
