@@ -12,7 +12,7 @@ namespace Saplin.StorageSpeedMeter
     public class TestResults : IEnumerable<double>, IEnumerable<Tuple<double, long>>
     { 
         private int recalcCount = -1;
-        private double min, minN, max, maxN, mean, avgThroughputReal, avgThroughputNormalized;
+        private double min = double.MaxValue, minN, max = -1, maxN = -1, mean = -1, median = -1, avgThroughputReal, avgThroughputNormalized;
         private const double normalizationTimeThreshold = 0.95;
         private long totalTimeMs;
 
@@ -51,7 +51,7 @@ namespace Saplin.StorageSpeedMeter
         {
             get
             {
-                Recalculate();
+                //Recalculate();
 
                 return min;
             }
@@ -61,7 +61,7 @@ namespace Saplin.StorageSpeedMeter
         {
             get
             {
-                Recalculate();
+                //Recalculate();
 
                 return max;
             }
@@ -97,9 +97,19 @@ namespace Saplin.StorageSpeedMeter
         {
             get
             {
-                Recalculate();
+                //Recalculate();
 
                 return mean;
+            }
+        }
+
+        public double Median
+        {
+            get
+            {
+                //Recalculate();
+
+                return median;
             }
         }
 
@@ -172,25 +182,23 @@ namespace Saplin.StorageSpeedMeter
 
                 Array.Sort(sorted);
 
-                min = sorted[0];
-                max = sorted[sorted.Length - 1];
                 minN = sorted[(int)(sorted.Length * .01)];
-                maxN = sorted[(int)(sorted.Length * 0.99)];
-                //mean = results.Average<double>(tr => tr);
-
-                double inverseThroughputs = 0;// results.Select<double, double>(r => 1 / r).Sum();
+                //maxN = sorted[(int)(sorted.Length * 0.99)];
+                median = sorted[sorted.Length / 2];
+                
+                double inverseThroughputs = 0;
 
                 double totalTime = 0;
-                mean = 0;
+                //mean = 0;
 
                 foreach (var r in sorted)
                 {
                     inverseThroughputs += 1 / r;
-                    mean += r;
+                    //mean += r;
                     totalTime += BlockSizeBytes / (r * 1024 * 1024);
                 }
 
-                mean = mean / sorted.Length;
+                //mean = mean / sorted.Length;
 
                 avgThroughputReal = sorted.Length / inverseThroughputs; // AvgThougput = [TotalTrafic] / [TotalTime] ___OR___ [Number of thoughput measures] / SUM OF [1 / (Nth throughput measure)]
 
@@ -198,8 +206,11 @@ namespace Saplin.StorageSpeedMeter
                 int inverseNormCount = 1;
                 double normTime = 0;
 
+                maxN = -1;
+
                 foreach (var r in sorted)
                 {
+                    if (r > maxN) maxN = r;
                     inverseNormThroughputs += 1 / r;
                     normTime += BlockSizeBytes / (r * 1024 * 1024);
                     if (normTime > normalizationTimeThreshold * totalTime) break;
@@ -217,6 +228,9 @@ namespace Saplin.StorageSpeedMeter
             if (!double.IsInfinity(result))
             {
                 results.Add(result);
+                if (result > max) max = result;
+                if (result < min) min = result;
+                if (mean == -1) mean = result; else mean = mean * (double)(results.Count - 1) / (double)results.Count + result / (double)results.Count;
                 if (position != null) positions.Add(position.Value);
             }
         }
@@ -277,5 +291,18 @@ namespace Saplin.StorageSpeedMeter
             return results.Zip(positions, (r, p) => new Tuple<double, long>(r, p)).GetEnumerator();
         }
 
+        public int Count
+        {
+            get { return results.Count; }
+        }
+
+        public double this[int index]
+        {
+            get
+            {
+                return results[index];
+            }
+
+        }
     }
 }

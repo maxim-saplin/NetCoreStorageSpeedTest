@@ -11,6 +11,11 @@ namespace Saplin.StorageSpeedMeter
         protected bool warmUp;
         protected readonly double warmUpBlocksPercentFromTotal = 0.05;
 
+        public long TotalBlocks
+        {
+            get { return totalBlocks; }
+        }
+
         public SequentialTest(FileStream fileStream, int blockSize, long totalBlocks = 0, bool warmUp = false)
         {
             if (blockSize <= 0) throw new ArgumentOutOfRangeException("blockSize", "Block size cant be negative");
@@ -26,6 +31,8 @@ namespace Saplin.StorageSpeedMeter
         {
             Status = TestStatus.Started;
 
+            var results = new TestResults(this);
+
             byte[] data = null;
 
             try
@@ -34,8 +41,8 @@ namespace Saplin.StorageSpeedMeter
             }
             catch
             {
-                Status = TestStatus.NotEnoughMemory;
-                return null;
+                NotEnoughMemUpdate(results, 0);
+                return results;
             }
 
             if (cachePurger != null)
@@ -45,7 +52,6 @@ namespace Saplin.StorageSpeedMeter
             }
 
             var sw = new Stopwatch();
-            var results = new TestResults(this);
 
             int prevPercent = -1;
             int curPercent = -1;
@@ -78,7 +84,7 @@ namespace Saplin.StorageSpeedMeter
                     curPercent = (int)(i * 100 / totalBlocks);
                     if (curPercent > prevPercent)
                     {
-                        Update(curPercent, results.GetLatest5AvgResult());
+                        Update(curPercent, results.GetLatest5AvgResult(), results: results);
                         prevPercent = curPercent;
                     }
                 }
@@ -106,5 +112,6 @@ namespace Saplin.StorageSpeedMeter
         {
             GC.Collect(2, GCCollectionMode.Forced, true);
         }
+
     }
 }

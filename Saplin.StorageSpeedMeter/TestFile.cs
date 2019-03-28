@@ -39,7 +39,7 @@ namespace Saplin.StorageSpeedMeter
         /// </summary>
         /// <param name="drivePath">Drive to test and store the temp file, the contructor attempts to find user folder in case system drive is selected and writing to rout is resricted</param>
         /// <param name="writeBuffering">If set to <c>true</c> FileOptions.WriteThrough is used when creating System.IO.FileStream - whether to use write buffering or not</param>
-        public TestFile(string drivePath, long testAreaSizeBytes, bool writeBuffering = false, bool enableMemCache = false, string filePath = null, Action flush = null)
+        public TestFile(string drivePath, long testAreaSizeBytes, bool writeBuffering = false, bool enableMemCache = false, string filePath = null, Action flush = null, bool mockStream = false)
         {
             path = string.IsNullOrEmpty(filePath) ? RamDiskUtil.GetTempFilePath(drivePath) : filePath;
             folderPath = System.IO.Path.GetDirectoryName(path);
@@ -55,21 +55,31 @@ namespace Saplin.StorageSpeedMeter
             // FileStram.Flush(true) calls POISX fsync() on mac/Android and doesn't do device buffer flush while on Windows it cuases device flush and significanlu lower results
             // Thus if write buffering is turned off, on Windows WriteThrough flag is used while on Mac/Android Stream.Flush(true) 
 
-            if (RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX)) //macOS
+            if (!mockStream)
             {
-                WriteStream = new MacOsUncachedFileStream(path, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, buffer, 
-                    /*!writeBuffering ? FileOptions.WriteThrough : */FileOptions.None,
-                    enableMemCache);
-                ReadStream = new MacOsUncachedFileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, buffer, FileOptions.None, enableMemCache);
-            }
-            else //Windows and rest
-            {
-                WriteStream = new FileStream(path, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, buffer, !writeBuffering ? FileOptions.WriteThrough : FileOptions.None);
-                //WriteStream = new FileStream(path, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, buffer, FileOptions.None);
-                ReadStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, buffer, enableMemCache ? FileOptions.None : (FileOptions)0x20000000/*FILE_FLAG_NO_BUFFERING*/);
-            }
 
-            ServiceStream = new FileStream(path, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
+                if (RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX)) //macOS
+                {
+                    WriteStream = new MacOsUncachedFileStream(path, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, buffer,
+                        /*!writeBuffering ? FileOptions.WriteThrough : */FileOptions.None,
+                        enableMemCache);
+                    ReadStream = new MacOsUncachedFileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, buffer, FileOptions.None, enableMemCache);
+                }
+                else //Windows and rest
+                {
+                    WriteStream = new FileStream(path, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, buffer, !writeBuffering ? FileOptions.WriteThrough : FileOptions.None);
+                    //WriteStream = new FileStream(path, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, buffer, FileOptions.None);
+                    ReadStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, buffer, enableMemCache ? FileOptions.None : (FileOptions)0x20000000/*FILE_FLAG_NO_BUFFERING*/);
+                }
+
+                ServiceStream = new FileStream(path, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
+            }
+            else
+            {
+                WriteStream = new MockFileStream(path, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, buffer, FileOptions.None);
+                ReadStream = new MockFileStream(path, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, buffer, FileOptions.None);
+                ServiceStream = new MockFileStream(path, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, buffer, FileOptions.None);
+            }
         }
 
         public void Dispose()

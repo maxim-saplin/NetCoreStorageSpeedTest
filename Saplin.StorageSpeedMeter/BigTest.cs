@@ -37,13 +37,13 @@ namespace Saplin.StorageSpeedMeter
         /// <param name="memCache">Faster reads through File Cache</param>
         /// <param name="filePath">Ignore drivepath, do not use auto file name generation and use absolute path to the file</param>
         /// <param name="freeMem">Delegate that gives info about free memory and used for mem cahche purging, e.g. under Android when .NET Standard doesn't have the faciclity to request free memory the info should go from caller</param>
-        public BigTest(string drivePath, long fileSize = 1024 * 1024 * 1024, bool writeBuffering = false, MemCacheOptions memCache = MemCacheOptions.Disabled, string filePath = null, Func<long> freeMem = null, WriteBufferFlusher flusher = null, bool tests32k = false)
+        public BigTest(string drivePath, long fileSize = 1024 * 1024 * 1024, bool writeBuffering = false, MemCacheOptions memCache = MemCacheOptions.Disabled, string filePath = null, Func<long> freeMem = null, WriteBufferFlusher flusher = null, bool tests32k = false, bool mockFileStream = false)
         {
             Func<bool> checkBreakCalled = () => breakCalled;
 
             this.flusher = flusher;
 
-            file = new TestFile(drivePath, fileSize, writeBuffering, memCache != MemCacheOptions.Disabled, filePath, flusher?.Flush); // macOS and Windows mem cahce can be dissabled at OS level for specifc file handles, no such options found for Android
+            file = new TestFile(drivePath, fileSize, writeBuffering, memCache != MemCacheOptions.Disabled, filePath, flusher?.Flush, mockFileStream); // macOS and Windows mem cahce can be dissabled at OS level for specifc file handles, no such options found for Android
             this.fileSize = fileSize;
 
             AddTest(new SequentialWriteTest(file, bigBlockSize, true));

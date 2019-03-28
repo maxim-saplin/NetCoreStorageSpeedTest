@@ -11,6 +11,11 @@ namespace Saplin.StorageSpeedMeter
         Func<long> freeMem;
         Random rand = new Random();
 
+        public long TotalBlocks
+        {
+            get { return totalBlocks; }
+        }
+
         public MemCopyTest(int blockSize = 64*1024*1024, long totalBlocks = 96, Func<long> freeMem = null)
         {
             if (blockSize <= 0) throw new ArgumentOutOfRangeException("blockSize", "Block size cant be negative");
@@ -64,7 +69,7 @@ namespace Saplin.StorageSpeedMeter
                 curPercent = (int)(i * 100 / totalBlocks);
                 if (curPercent > prevPercent)
                 {
-                    Update(curPercent, results.GetLatest5AvgResult());
+                    Update(curPercent, results.GetLatest5AvgResult(), results: results);
                     prevPercent = curPercent;
                 }
             }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime;
+using System.Threading;
 
 namespace Saplin.StorageSpeedMeter
 {
@@ -44,7 +45,8 @@ namespace Saplin.StorageSpeedMeter
                 {
                     testFile?.flush?.Invoke();
                     stream.Flush(true);
-                }
+                    if (!checkBreakCalled()) Thread.Sleep(300);
+                };
             }
         }
 
