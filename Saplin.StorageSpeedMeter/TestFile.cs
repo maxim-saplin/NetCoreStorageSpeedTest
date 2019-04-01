@@ -24,11 +24,6 @@ namespace Saplin.StorageSpeedMeter
             get;
         }
 
-        public FileStream ServiceStream
-        {
-            get;
-        }
-
         public long TestAreaSizeBytes
         {
             get;
@@ -72,13 +67,11 @@ namespace Saplin.StorageSpeedMeter
                     ReadStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, buffer, enableMemCache ? FileOptions.None : (FileOptions)0x20000000/*FILE_FLAG_NO_BUFFERING*/);
                 }
 
-                ServiceStream = new FileStream(path, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
             }
             else
             {
                 WriteStream = new MockFileStream(path, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, buffer, FileOptions.None);
                 ReadStream = new MockFileStream(path, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, buffer, FileOptions.None);
-                ServiceStream = new MockFileStream(path, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, buffer, FileOptions.None);
             }
         }
 
@@ -97,7 +90,6 @@ namespace Saplin.StorageSpeedMeter
             {
                 ReadStream.Dispose();
                 WriteStream.Dispose();
-                ServiceStream.Dispose();
             }
 
             System.IO.File.Delete(path);

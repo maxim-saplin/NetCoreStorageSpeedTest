@@ -19,13 +19,12 @@ namespace Saplin.StorageSpeedMeter
         Func<long> freeMem;
         Func<bool> checkBreakCalled;
         Random rand = new Random();
-        TestFile testFile;
+        string filePath;
 
-        public CachePurger(TestFile file, Func<long> freeMem, Func<bool> checkBreakCalled)
+        public CachePurger(string filePath, Func<long> freeMem, Func<bool> checkBreakCalled)
         {
-            stream = file.ServiceStream;
-            testFile = file;
-            startPosition = file.TestAreaSizeBytes;
+            startPosition = 0;
+            this.filePath = filePath;
             this.freeMem = freeMem;
             this.checkBreakCalled = checkBreakCalled;
 
@@ -37,16 +36,19 @@ namespace Saplin.StorageSpeedMeter
             if (checkBreakCalled()) return;
             try
             {
+                stream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
                 PurgeOnce();
             }
             finally
             {
                 if (!checkBreakCalled())
                 {
-                    testFile?.flush?.Invoke();
                     stream.Flush(true);
                     if (!checkBreakCalled()) Thread.Sleep(300);
                 };
+
+                stream?.Close();
+                File.Delete(filePath);
             }
         }
 
