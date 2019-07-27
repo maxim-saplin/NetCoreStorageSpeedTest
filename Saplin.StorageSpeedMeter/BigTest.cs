@@ -37,13 +37,13 @@ namespace Saplin.StorageSpeedMeter
         /// <param name="memCache">Faster reads through File Cache</param>
         /// <param name="filePath">Ignore drivepath, do not use auto file name generation and use absolute path to the file</param>
         /// <param name="freeMem">Delegate that gives info about free memory and used for mem cahche purging, e.g. under Android when .NET Standard doesn't have the faciclity to request free memory the info should go from caller</param>
-        public BigTest(string drivePath, long fileSize = 1024 * 1024 * 1024, bool writeBuffering = false, MemCacheOptions memCache = MemCacheOptions.Disabled, string filePath = null, string purgingFilePath = null, Func<long> freeMem = null, WriteBufferFlusher flusher = null, bool tests32k = false, bool mockFileStream = false)
+        public BigTest(string drivePath, long fileSize = 1024 * 1024 * 1024, bool writeBuffering = false, MemCacheOptions memCache = MemCacheOptions.Disabled, string filePath = null, string purgingFilePath = null, Func<long> freeMem = null, long totalMem = -1, WriteBufferFlusher flusher = null, bool tests32k = false, bool mockFileStream = false, bool disableMacStream = false)
         {
             Func<bool> checkBreakCalled = () => breakCalled;
 
             this.flusher = flusher;
 
-            file = new TestFile(drivePath, fileSize, writeBuffering, memCache != MemCacheOptions.Disabled, filePath, flusher?.Flush, mockFileStream); // macOS and Windows mem cahce can be dissabled at OS level for specifc file handles, no such options found for Android
+            file = new TestFile(drivePath, fileSize, writeBuffering, memCache != MemCacheOptions.Disabled, filePath, flusher?.Flush, mockFileStream, disableMacStream); // macOS and Windows mem cahce can be dissabled at OS level for specifc file handles, no such options found for Android/iOS
             this.fileSize = fileSize;
 
             AddTest(new SequentialWriteTest(file, bigBlockSize, true));
@@ -57,7 +57,9 @@ namespace Saplin.StorageSpeedMeter
 
             SetUpRemainigCalculations();
 
-            AddTest(new MemCopyTest(bigBlockSize, 8192, freeMem));
+            var memBlocks = totalMem > 0 ? totalMem / bigBlockSize * 3 : 4096;
+
+            AddTest(new MemCopyTest(bigBlockSize, memBlocks, freeMem));
         }
 
         long remainingMs;

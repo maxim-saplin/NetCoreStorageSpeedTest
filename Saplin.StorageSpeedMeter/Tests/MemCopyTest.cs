@@ -8,6 +8,7 @@ namespace Saplin.StorageSpeedMeter
         private int[] src, dst;
         protected long totalBlocks;
         int current = 0;
+        protected readonly int maxTestTime;
         Func<long> freeMem;
         Random rand = new Random();
 
@@ -16,13 +17,14 @@ namespace Saplin.StorageSpeedMeter
             get { return totalBlocks; }
         }
 
-        public MemCopyTest(int blockSize = 64*1024*1024, long totalBlocks = 96, Func<long> freeMem = null)
+        public MemCopyTest(int blockSize = 64*1024*1024, long totalBlocks = 96, Func<long> freeMem = null, int maxTestTimeSecs = 4)
         {
             if (blockSize <= 0) throw new ArgumentOutOfRangeException("blockSize", "Block size cant be negative");
             if (totalBlocks < 0) throw new ArgumentOutOfRangeException("totalBlocks", "Block number cant be negative");
             this.blockSize = blockSize;
             this.totalBlocks = totalBlocks;
             this.freeMem = freeMem;
+            this.maxTestTime = maxTestTimeSecs;
         }
 
         public override string DisplayName { get => "Memory copy" + " [" + blockSize / 1024 / 1024 + "MB] block"; }
@@ -49,7 +51,7 @@ namespace Saplin.StorageSpeedMeter
             int prevPercent = -1;
             int curPercent = -1;
 
-            RestartStopwatch();
+            RestartElapsed();
 
             Status = TestStatus.Running;
 
@@ -66,15 +68,25 @@ namespace Saplin.StorageSpeedMeter
 
                 results.AddTroughputMbs(blockSize, 0, sw);
 
-                curPercent = (int)(i * 100 / totalBlocks);
+                //curPercent = (int)(i * 100 / totalBlocks);
+                curPercent = Math.Min(
+                    100,
+                    Math.Max(
+                        (int)(elapsedSw.ElapsedMilliseconds / 10 / maxTestTime),
+                        curPercent = (int)(i * 100 / totalBlocks)
+                    )
+                );
+
                 if (curPercent > prevPercent)
                 {
                     Update(curPercent, results.GetLatest5AvgResult(), results: results);
                     prevPercent = curPercent;
+
+                    if (curPercent == 100) break;
                 }
             }
 
-            results.TotalTimeMs = StopStopwatch();
+            results.TotalTimeMs = StopElapsed();
 
             FinalUpdate(results, ElapsedMs);
 

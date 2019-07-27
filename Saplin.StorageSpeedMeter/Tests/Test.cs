@@ -61,7 +61,7 @@ namespace Saplin.StorageSpeedMeter
             }
         }
 
-        private Stopwatch elapsedSw;
+        protected Stopwatch elapsedSw;
 
         protected Test()
         {
@@ -76,13 +76,13 @@ namespace Saplin.StorageSpeedMeter
             }
         }
 
-        protected void RestartStopwatch()
+        protected void RestartElapsed()
         {
             elapsedSw = new Stopwatch();
             elapsedSw.Start();
         }
 
-        protected long StopStopwatch()
+        protected long StopElapsed()
         {
             elapsedSw.Stop();
             return elapsedSw.ElapsedMilliseconds;

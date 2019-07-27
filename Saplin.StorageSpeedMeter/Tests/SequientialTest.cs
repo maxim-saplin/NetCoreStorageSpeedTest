@@ -57,7 +57,7 @@ namespace Saplin.StorageSpeedMeter
             int curPercent = -1;
             fileStream.Seek(0, SeekOrigin.Begin);
 
-            RestartStopwatch();
+            RestartElapsed();
 
             var warmUpBlocks = warmUp ? (int)Math.Ceiling(totalBlocks*warmUpBlocksPercentFromTotal) : 0;
             if (warmUp) Status = TestStatus.WarmigUp; else Status = TestStatus.Running;
@@ -90,7 +90,7 @@ namespace Saplin.StorageSpeedMeter
                 }
             }
 
-            results.TotalTimeMs = StopStopwatch();
+            results.TotalTimeMs = StopElapsed();
 
             FinalUpdate(results, ElapsedMs);
 
