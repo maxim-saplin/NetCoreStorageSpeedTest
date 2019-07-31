@@ -292,3 +292,4 @@ out_w64/
 out_w32/
 
 /WinMacDiskSpeedTest/output-win-x64
+.DS_Store

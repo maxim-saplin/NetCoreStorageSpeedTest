@@ -14,10 +14,10 @@ namespace Saplin.StorageSpeedMeter
 
         public override void Write(byte[] array, int offset, int count)
         {
-            if (count < 5000)
+            if (count < 5000) // RandomTests with small blocks
             {
-                Thread.Sleep(1);
-                var arr = new int[350+random.Next(1, 5)* random.Next(1, 5) * random.Next(1, 5)];
+                //Thread.Sleep(1);
+                var arr = new int[150+random.Next(1, 5)* random.Next(1, 5) * random.Next(1, 5)];
                 for (int i = 0; i < arr.Length; i++)
                     arr[i] = random.Next();
 
