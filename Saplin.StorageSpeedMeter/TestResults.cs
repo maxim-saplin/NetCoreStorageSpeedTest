@@ -304,5 +304,10 @@ namespace Saplin.StorageSpeedMeter
             }
 
         }
+
+        public void ClearCollection()
+        {
+            results.Clear();
+        }
     }
 }
