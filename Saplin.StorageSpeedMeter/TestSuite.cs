@@ -170,7 +170,7 @@ namespace Saplin.StorageSpeedMeter
                     }
                 }
 
-                stream.WriteLine("Write score(MB/s):{0}{1}{0}Read score(MB/s):{0}{2}{0}", separator, WriteScore.ToString(nfi), ReadScore.ToString(nfi));
+                //stream.WriteLine("Write score(MB/s):{0}{1}{0}Read score(MB/s):{0}{2}{0}", separator, WriteScore.ToString(nfi), ReadScore.ToString(nfi));
             }
         }
 
