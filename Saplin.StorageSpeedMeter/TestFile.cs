@@ -56,9 +56,9 @@ namespace Saplin.StorageSpeedMeter
                 if (!disableMacStream && RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX)) //macOS, somehow iOS get in this category
                 {
                     WriteStream = new MacOsUncachedFileStream(path, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, buffer,
-                        /*!writeBuffering ? FileOptions.WriteThrough : */FileOptions.None,
-                        enableMemCache);
-                    ReadStream = new MacOsUncachedFileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, buffer, FileOptions.None, enableMemCache);
+                        FileOptions.None, enableMemCache);
+                    ReadStream = new MacOsUncachedFileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, buffer,
+                        FileOptions.None, enableMemCache);
                 }
                 else //Windows and rest
                 {
