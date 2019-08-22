@@ -2,9 +2,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2027
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinMacDiskSpeedTest", "WinMacDiskSpeedTest\WinMacDiskSpeedTest.csproj", "{A5BE1B01-231D-4F38-9B03-F044C635AFEC}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Saplin.StorageSpeedMeter", "Saplin.StorageSpeedMeter\Saplin.StorageSpeedMeter.csproj", "{37B2279C-6A33-4F67-8152-5FE8767B3FEF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CPDT_Console", "CPDT_Console\CPDT_Console.csproj", "{F4CCB90F-1C4D-42F8-B6A2-3D6DE3FC5E43}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,22 +18,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A5BE1B01-231D-4F38-9B03-F044C635AFEC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A5BE1B01-231D-4F38-9B03-F044C635AFEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A5BE1B01-231D-4F38-9B03-F044C635AFEC}.Debug|ARM.ActiveCfg = Debug|Any CPU
-		{A5BE1B01-231D-4F38-9B03-F044C635AFEC}.Debug|ARM.Build.0 = Debug|Any CPU
-		{A5BE1B01-231D-4F38-9B03-F044C635AFEC}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{A5BE1B01-231D-4F38-9B03-F044C635AFEC}.Debug|x64.Build.0 = Debug|Any CPU
-		{A5BE1B01-231D-4F38-9B03-F044C635AFEC}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{A5BE1B01-231D-4F38-9B03-F044C635AFEC}.Debug|x86.Build.0 = Debug|Any CPU
-		{A5BE1B01-231D-4F38-9B03-F044C635AFEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A5BE1B01-231D-4F38-9B03-F044C635AFEC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A5BE1B01-231D-4F38-9B03-F044C635AFEC}.Release|ARM.ActiveCfg = Release|Any CPU
-		{A5BE1B01-231D-4F38-9B03-F044C635AFEC}.Release|ARM.Build.0 = Release|Any CPU
-		{A5BE1B01-231D-4F38-9B03-F044C635AFEC}.Release|x64.ActiveCfg = Release|Any CPU
-		{A5BE1B01-231D-4F38-9B03-F044C635AFEC}.Release|x64.Build.0 = Release|Any CPU
-		{A5BE1B01-231D-4F38-9B03-F044C635AFEC}.Release|x86.ActiveCfg = Release|Any CPU
-		{A5BE1B01-231D-4F38-9B03-F044C635AFEC}.Release|x86.Build.0 = Release|Any CPU
 		{37B2279C-6A33-4F67-8152-5FE8767B3FEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{37B2279C-6A33-4F67-8152-5FE8767B3FEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{37B2279C-6A33-4F67-8152-5FE8767B3FEF}.Debug|ARM.ActiveCfg = Debug|Any CPU
@@ -50,6 +34,22 @@ Global
 		{37B2279C-6A33-4F67-8152-5FE8767B3FEF}.Release|x64.Build.0 = Release|Any CPU
 		{37B2279C-6A33-4F67-8152-5FE8767B3FEF}.Release|x86.ActiveCfg = Release|Any CPU
 		{37B2279C-6A33-4F67-8152-5FE8767B3FEF}.Release|x86.Build.0 = Release|Any CPU
+		{F4CCB90F-1C4D-42F8-B6A2-3D6DE3FC5E43}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F4CCB90F-1C4D-42F8-B6A2-3D6DE3FC5E43}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F4CCB90F-1C4D-42F8-B6A2-3D6DE3FC5E43}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{F4CCB90F-1C4D-42F8-B6A2-3D6DE3FC5E43}.Debug|ARM.Build.0 = Debug|Any CPU
+		{F4CCB90F-1C4D-42F8-B6A2-3D6DE3FC5E43}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F4CCB90F-1C4D-42F8-B6A2-3D6DE3FC5E43}.Debug|x64.Build.0 = Debug|Any CPU
+		{F4CCB90F-1C4D-42F8-B6A2-3D6DE3FC5E43}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F4CCB90F-1C4D-42F8-B6A2-3D6DE3FC5E43}.Debug|x86.Build.0 = Debug|Any CPU
+		{F4CCB90F-1C4D-42F8-B6A2-3D6DE3FC5E43}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F4CCB90F-1C4D-42F8-B6A2-3D6DE3FC5E43}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F4CCB90F-1C4D-42F8-B6A2-3D6DE3FC5E43}.Release|ARM.ActiveCfg = Release|Any CPU
+		{F4CCB90F-1C4D-42F8-B6A2-3D6DE3FC5E43}.Release|ARM.Build.0 = Release|Any CPU
+		{F4CCB90F-1C4D-42F8-B6A2-3D6DE3FC5E43}.Release|x64.ActiveCfg = Release|Any CPU
+		{F4CCB90F-1C4D-42F8-B6A2-3D6DE3FC5E43}.Release|x64.Build.0 = Release|Any CPU
+		{F4CCB90F-1C4D-42F8-B6A2-3D6DE3FC5E43}.Release|x86.ActiveCfg = Release|Any CPU
+		{F4CCB90F-1C4D-42F8-B6A2-3D6DE3FC5E43}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

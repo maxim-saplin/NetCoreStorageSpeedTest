@@ -87,6 +87,7 @@ namespace Saplin.StorageSpeedMeter
 
 
         private static string[] macContainsExpcetions = { "/private/var" };
+        private static string[] linuxContainsExpcetions = { "/sys/", "/snap/" };
         private static string[] androidIsExpcetions = { "/", "/vendor", "/firmware", "/dsp", "/persist", "/system", "/cache" };
         private static string[] androidContainsExpcetions = { "/mnt/runtime", "/data/var", "/mnt/media_rw" };
 
@@ -107,9 +108,11 @@ namespace Saplin.StorageSpeedMeter
             else if (RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
             {
             }
-            else // Android
+            else // Android or Linux
             {
                 foreach (var e in androidContainsExpcetions)
+                    drives = drives.Where(d => !d.Name.Contains(e));
+                foreach (var e in linuxContainsExpcetions)
                     drives = drives.Where(d => !d.Name.Contains(e));
                 foreach (var e in androidIsExpcetions)
                     drives = drives.Where(d => d.Name.ToLower() != e.ToLower());
@@ -140,13 +143,14 @@ namespace Saplin.StorageSpeedMeter
                 }
                 else path = Path.Combine(drivePath, fileName);
             }
-            else // Android is the 3rd supported platform
+            else // Linux
             {
-                if (drivePath == "/data") // Internal storage, use personal folder
-                {
-                    path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), fileName);
-                }
-                else path = Path.Combine(drivePath, fileName);
+                if (drivePath == "/home") path = "~";
+                //if (drivePath == "/data") // Internal storage, use personal folder
+                //{
+                //    path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), fileName);
+                //}
+                //else path = Path.Combine(drivePath, fileName);
             }
 
             return path;

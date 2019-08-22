@@ -59,7 +59,7 @@ namespace WinMacDiskSpeedTest
         {
             try
             {
-                Console.WriteLine("STORAGE SPEED TEST\n");
+                Console.WriteLine("CPDT_Console - STORAGE SPEED TEST\n");
 
                 Console.ForegroundColor = ConsoleColor.DarkGray;
                 Console.WriteLine("Total RAM: {0:0.00}Gb, Available RAM: {1:0.00}Gb\n", (double)RamDiskUtil.TotalRam / 1024 / 1024 / 1024, (double)RamDiskUtil.FreeRam / 1024 / 1024 / 1024);
