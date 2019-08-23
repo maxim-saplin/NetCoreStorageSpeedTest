@@ -1,16 +1,9 @@
 # NetCoreStorageSpeedTest
-Console Application (tested on Windows and MacOS) and a cross-platform Class Library C#, .NET Core 2.1) for measuring read/write speeds of disks/storage devices.
+Console Application (Linux, Windows and MacOS - .NET Core 3) and a cross-platform Class Library (C#, .NET Standard 2) for measuring read/write speeds of disks/storage devices.
+The class library is the perfomance measuring core of CPDT Benchmark (Cross Platform Disk Test): https://github.com/maxim-saplin/CrossPlatformDiskTest
+There's a console app (started via Terminal) which runs same tests as CPDT, though only with default options and no way to change them.
 
-# Download Binaries
-In the relase section: https://github.com/maxim-saplin/NetCoreStorageSpeedTest/releases
+# Download 
+Linux: https://github.com/maxim-saplin/NetCoreStorageSpeedTest/releases/download/2.0.0/CPDT_Console_Linux.zip
+Older Win/Mac versions: https://github.com/maxim-saplin/NetCoreStorageSpeedTest/releases/tag/1.1.5
 
-# Publishing with IL Linker
-The solution is configured to produce self-contained .NET Core Application as it's output. Effectively it puts all the dependencies of the framework and output binaries into one directory and let's run the console app without the need to have .NET Core installed (which is not the case for Mac).
-
-There's a NuGet dependepncy to IL Linker in WinMacDiskSpeedTest project (used for creating self-contained .NET Packages - read "Release build-publish instructions.txt") which requires to manually add a NuGet repository (https://dotnet.myget.org/F/dotnet-core/api/v3/index.json). In order to build the project, this repository must be added, or the dependency can be removed (removing the possibility to make minimized self-contained builds).
-To add the repository go to "Tools -> Options -> NuGet Package Manager -> Package Source" and add a new source with "Source" address "https://dotnet.myget.org/F/dotnet-core/api/v3/index.json"
-
-macOS - IL Linker might fail to copy libMonoPosixHelper.dylib from Saplin.StorageSpeedMeter project's output to console app's outpu - do it manually
-
-# Tests of 2018 MacBook Pro SSD
-macOS, Windows Bootcamp, Windows VM - http://saplin.blogspot.com/2018/07/2018-15-macbook-pro-ssd-benchmark-macos.html
