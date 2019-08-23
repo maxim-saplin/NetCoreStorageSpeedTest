@@ -7,5 +7,6 @@ There's a console app (started via Terminal) which runs same tests as CPDT, thou
 
 # Download 
 Linux: https://github.com/maxim-saplin/NetCoreStorageSpeedTest/releases/download/2.0.0/CPDT_Console_Linux.zip
+
 Older Win/Mac versions: https://github.com/maxim-saplin/NetCoreStorageSpeedTest/releases/tag/1.1.5
 
