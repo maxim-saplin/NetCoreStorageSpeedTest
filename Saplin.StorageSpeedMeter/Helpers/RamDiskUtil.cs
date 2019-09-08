@@ -97,7 +97,8 @@ namespace Saplin.StorageSpeedMeter
                                       .Where(d => d.IsReady
                                              && (d.DriveType == DriveType.Fixed
                                                                 || d.DriveType == DriveType.Removable
-                                                                || d.DriveType == DriveType.Unknown)
+                                                                || d.DriveType == DriveType.Unknown
+                                                                || d.DriveType == DriveType.Network)
                                             );
 
             if (RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
@@ -145,12 +146,15 @@ namespace Saplin.StorageSpeedMeter
             }
             else // Linux
             {
-                if (drivePath == "/home") path = "~";
-                //if (drivePath == "/data") // Internal storage, use personal folder
-                //{
-                //    path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), fileName);
-                //}
-                //else path = Path.Combine(drivePath, fileName);
+				if (drivePath == "/home") path = "~"; // Linux
+				else //Android
+				{
+					if (drivePath == "/data") // Internal storage, use personal folder
+					{
+						path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), fileName);
+					}
+					else path = Path.Combine(drivePath, fileName);
+				}
             }
 
             return path;

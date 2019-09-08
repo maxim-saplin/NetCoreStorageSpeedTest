@@ -7,7 +7,7 @@
         <ReleaseVersion>2.0.0</ReleaseVersion>
         <PublishTrimmed>true</PublishTrimmed>
         <PublishReadyToRun>false</PublishReadyToRun>
-        <PublishSingleFile>true</PublishSingleFile>
+        <PublishSingleFile>false</PublishSingleFile>
     </PropertyGroup>
     <ItemGroup>
         <ProjectReference Include="..\Saplin.StorageSpeedMeter\Saplin.StorageSpeedMeter.csproj" />
