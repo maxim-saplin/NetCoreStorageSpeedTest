@@ -11,8 +11,8 @@ namespace Saplin.StorageSpeedMeter
     {
         const long blockSize = 16 * 1024 * 1024;
         const long defaultMemCapacity = (long)16 * 1024 * 1024 * 1024;
-        const long blocksToWrite = 16; //1GB
-        const long fileExtraToUse = 256 * 1024 * 1024;
+        const long blocksToWrite = 20; 
+        const long fileExtraToUse = blockSize * blocksToWrite * 1024 * 1024;
         const int purgeTimeMs = 7000;
         FileStream stream;
         long startPosition;
@@ -45,7 +45,7 @@ namespace Saplin.StorageSpeedMeter
                 {
                     stream.Flush(true);
                     if (!checkBreakCalled()) Thread.Sleep(300);
-                };
+                }
 
                 stream?.Close();
                 File.Delete(filePath);
@@ -56,39 +56,55 @@ namespace Saplin.StorageSpeedMeter
         {
             blocks = null;
             GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
-            GC.Collect(2, GCCollectionMode.Forced, true, true);
-            Debug.WriteLine("Blocks release, GC.Collect called");
+            GC.Collect(GC.MaxGeneration);
+            Debug.WriteLine("Blocks released, GC.Collect() called");
         }
 
         List<byte[]> blocks = null;
 
+        const float freeMemCeilingCoef = 1.0f;//0.87f;
+		const long freeMemThreshold = 50 * 1024 * 1024;
+
         private void PurgeOnce()
         {
-            blocks = new List<byte[]>();
             try
             {
-                var memCapacity = freeMem != null ? freeMem() * 87 / 100 // Android can kill process if mem comes to end
-                    : (RamDiskUtil.TotalRam == 0 ? defaultMemCapacity : RamDiskUtil.TotalRam);
-                var blocksInMemMax = memCapacity / blockSize;
                 byte[] block = null;
 
-                for (int i = 0; i < blocksInMemMax; i++)
-                {
-                    if (checkBreakCalled()) return;
-                    Debug.WriteLine("AllockBlock: " + i);
-                    block = AllocBlock();
+                //for (var k = 0; k < 2; k++)
+                //{
+                    blocks = new List<byte[]>();
 
-                    if (block != null) blocks.Add(block);
-                    else break;
-                }
+                    var memCapacity = freeMem != null ? (long)(freeMem() * freeMemCeilingCoef) // Android can kill process if mem comes to end
+                        : (RamDiskUtil.TotalRam == 0 ? defaultMemCapacity : RamDiskUtil.TotalRam);
+                    var blocksInMemMax = memCapacity / blockSize;
 
+                    //Debug.WriteLine("AllockBlock ATTEMPT #" + (k+1));
+
+                    for (var i = 0; i < blocksInMemMax; i++)
+                    {
+                        if (checkBreakCalled()) return;
+                        Debug.WriteLine("AllockBlock: " + i);
+
+                        block = AllocBlock();
+                        if (freeMem() <= freeMemThreshold) break;
+
+                        if (block != null) blocks.Add(block);
+                        else break;
+                    }
+
+                //    if (k == 0)
+                //    {
+                //        Release();
+                //    }
+                //}
+            }
+            catch { }
+
+            try { 
                 stream.Seek(startPosition, SeekOrigin.Begin);
                 long fileExtra = 0;
                 var blockIndex = 0;
-
-                if (blocks.Count > 0) blocks.RemoveAt(blocks.Count - 1); // JIC remove few blocks and let GC free up mem if needed
-                if (blocks.Count > 0) blocks.RemoveAt(blocks.Count - 1);
-                if (blocks.Count > 0) blocks.RemoveAt(blocks.Count - 1);
 
                 if (blocks.Count > 0)
                 {
@@ -106,8 +122,8 @@ namespace Saplin.StorageSpeedMeter
 
                         if (blockIndex >= blocks.Count) blockIndex = 0;
 
-                        for (int k = 0; k < block.Length; k += 64)
-                            blocks[blockIndex][k] = (byte)rand.Next();
+                        //for (int k = 0; k < block.Length; k += 64)
+                        //    blocks[blockIndex][k] = (byte)rand.Next();
 
                         stream.Write(blocks[blockIndex], 0, blocks[blockIndex].Length);
 
@@ -118,10 +134,6 @@ namespace Saplin.StorageSpeedMeter
                 }
             }
             catch{}
-            finally
-            {
-                //blocks = null;
-            }
         }
 
         public byte[] AllocBlock()
@@ -137,9 +149,11 @@ namespace Saplin.StorageSpeedMeter
                 if (checkBreakCalled()) return null;
                 Array.Clear(block,0, block.Length);
 
+                var randN = (byte)rand.Next();
+
                 if (checkBreakCalled()) return null;
-                for (int i = 0; i < block.Length; i+=64)
-                    block[i] = (byte)rand.Next();
+                for (int i = 0; i < block.Length; i+=128)
+                    block[i] = randN++;
 
             }
             catch 

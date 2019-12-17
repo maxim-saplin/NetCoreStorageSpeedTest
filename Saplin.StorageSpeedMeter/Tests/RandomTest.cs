@@ -7,7 +7,7 @@ namespace Saplin.StorageSpeedMeter
     public abstract class RandomTest : Test
     {
         protected const int memoryBuffSize = 128 * 1024 * 1024;
-        private const int maxBlocksInTest = 1 * 1024 * 1024; // 8 Mb for shuffled positions, 4GB for 4KB block
+        private const int maxBlocksInTest = 1 * 1024 * 1024; // 8 Mb for shuffled positions, 4GB for 4KB blocks
 
         protected readonly FileStream fileStream;
         

@@ -124,7 +124,11 @@ namespace Saplin.StorageSpeedMeter
         {
             long mem = Environment.Is64BitProcess ?  512 * 1024 * 1024 : 256 * 1024 * 1024;
 
-            if (freeMem != null) mem = Math.Min(mem, freeMem()/10*7);
+            if (freeMem != null)
+            {
+                freeMem(); //hack, flip internal memCritical flag of CPDT's Android's implemetion of FreeMemory.GetFreeMemory() to 0 if it was set to 1 while perforfming cache purgin for previous read test
+                mem = Math.Min(mem, freeMem() / 10 * 7);
+            }
             var dstLength = blockSize * (mem / blockSize) / sizeof(int);
 
             if (dstLength < 4*blockSize / sizeof(int)) throw new OutOfMemoryException();
