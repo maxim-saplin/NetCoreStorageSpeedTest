@@ -11,8 +11,8 @@ namespace Saplin.StorageSpeedMeter
     {
         const long blockSize = 16 * 1024 * 1024;
         const long defaultMemCapacity = (long)16 * 1024 * 1024 * 1024;
-        const long blocksToWrite = 20; 
-        const long fileExtraToUse = blockSize * blocksToWrite * 1024 * 1024;
+        const long blocksToWrite = 100; 
+        const long fileExtraToUse = blockSize * 100;
         const int purgeTimeMs = 7000;
         FileStream stream;
         long startPosition;
@@ -43,7 +43,7 @@ namespace Saplin.StorageSpeedMeter
             {
                 if (!checkBreakCalled())
                 {
-                    stream.Flush(true);
+                    //stream.Flush(true);
                     if (!checkBreakCalled()) Thread.Sleep(300);
                 }
 
@@ -67,39 +67,25 @@ namespace Saplin.StorageSpeedMeter
 
         private void PurgeOnce()
         {
+            blocks = new List<byte[]>();
+
+            Debug.WriteLine("Cache Purge, creating 3 blocks");
+
             try
             {
                 byte[] block = null;
 
-                //for (var k = 0; k < 2; k++)
-                //{
-                    blocks = new List<byte[]>();
-
-                    var memCapacity = freeMem != null ? (long)(freeMem() * freeMemCeilingCoef) // Android can kill process if mem comes to end
-                        : (RamDiskUtil.TotalRam == 0 ? defaultMemCapacity : RamDiskUtil.TotalRam);
-                    var blocksInMemMax = memCapacity / blockSize;
-
-                    //Debug.WriteLine("AllockBlock ATTEMPT #" + (k+1));
-
-                    for (var i = 0; i < blocksInMemMax; i++)
+                    for (var i = 0; i < 3; i++)
                     {
-                        if (checkBreakCalled()) return;
-                        Debug.WriteLine("AllockBlock: " + i);
-
                         block = AllocBlock();
-                        if (freeMem() <= freeMemThreshold) break;
-
                         if (block != null) blocks.Add(block);
                         else break;
                     }
 
-                //    if (k == 0)
-                //    {
-                //        Release();
-                //    }
-                //}
             }
             catch { }
+
+            Debug.WriteLine("Writign fake file");
 
             try { 
                 stream.Seek(startPosition, SeekOrigin.Begin);
@@ -108,22 +94,23 @@ namespace Saplin.StorageSpeedMeter
 
                 if (blocks.Count > 0)
                 {
+                    var r = (byte)rand.Next();
                     var sw = new Stopwatch();
                     sw.Start();
                     for (int i = 0; i < blocksToWrite; i++)
                     {
-                        if (checkBreakCalled() || sw.ElapsedMilliseconds > purgeTimeMs) { return; }
+                        if (checkBreakCalled() || sw.ElapsedMilliseconds > purgeTimeMs) { break; }
 
                         if (fileExtra >= fileExtraToUse)
                         {
-                            stream.Seek(startPosition + blockSize, SeekOrigin.Begin);
+                            stream.Seek(startPosition, SeekOrigin.Begin);
                             fileExtra = 0;
                         }
 
                         if (blockIndex >= blocks.Count) blockIndex = 0;
 
-                        //for (int k = 0; k < block.Length; k += 64)
-                        //    blocks[blockIndex][k] = (byte)rand.Next();
+                        for (int k = 0; k < blocks[blockIndex].Length; k += 256)
+                            blocks[blockIndex][k] = r++;
 
                         stream.Write(blocks[blockIndex], 0, blocks[blockIndex].Length);
 
@@ -134,16 +121,42 @@ namespace Saplin.StorageSpeedMeter
                 }
             }
             catch{}
+
+            try
+            {
+                byte[] block = null;
+
+                var memCapacity = freeMem != null ? (long)(freeMem() * freeMemCeilingCoef) // Android can kill process if mem comes to end
+                    : (RamDiskUtil.TotalRam == 0 ? defaultMemCapacity : RamDiskUtil.TotalRam);
+                var blocksInMemMax = memCapacity / blockSize;
+
+                for (var i = 0; i < blocksInMemMax - 3; i++)
+                {
+                    if (checkBreakCalled()) return;
+                    Debug.WriteLine("AllockBlock: " + i);
+
+                    block = AllocBlock();
+
+                    if (block != null) blocks.Add(block);
+                    else break;
+
+                    if (freeMem() < freeMemThreshold) break;
+
+                    // pregressively slow down executuion to give OS memory manager more time to react, e.g. call onMemoryTrim event on Android
+                    if ((float)i / blocksInMemMax > 0.7f) Thread.Sleep(1);
+                    else if ((float)i / blocksInMemMax > 0.8f) Thread.Sleep(5);
+                    else if ((float)i / blocksInMemMax > 0.9f) Thread.Sleep(10);
+                }
+            }
+            catch { }
         }
 
         public byte[] AllocBlock()
         {
             byte[] block = null;
-            //MemoryFailPoint memFailPoint = null;
 
             try
             {
-                //memFailPoint = new MemoryFailPoint((int)(blockSize / 1024 / 1024));
                 block = new byte[blockSize];
 
                 if (checkBreakCalled()) return null;
@@ -158,12 +171,13 @@ namespace Saplin.StorageSpeedMeter
             }
             catch 
             { }
-            finally
-            {
-                //memFailPoint?.Dispose();
-            }
 
             return block;
+        }
+
+        public void SetBreackCheckFunc(Func<bool> checkBreakCalled)
+        {
+            this.checkBreakCalled = checkBreakCalled;
         }
     }
 }

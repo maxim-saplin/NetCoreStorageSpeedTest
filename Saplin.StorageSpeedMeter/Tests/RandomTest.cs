@@ -142,10 +142,10 @@ namespace Saplin.StorageSpeedMeter
 
             FinalUpdate(results, elapsed.ElapsedMilliseconds);
 
-            if (cachePurger != null)
-            {
-                cachePurger.Release();
-            }
+            //if (cachePurger != null)
+            //{
+            //    cachePurger.Release();
+            //}
 
             return results;
         }

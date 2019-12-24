@@ -36,8 +36,10 @@ namespace Saplin.StorageSpeedMeter
         /// <param name="writeBuffering">Faster writes through buffering</param>
         /// <param name="memCache">Faster reads through File Cache</param>
         /// <param name="filePath">Ignore drivepath, do not use auto file name generation and use absolute path to the file</param>
-        /// <param name="freeMem">Delegate that gives info about free memory and used for mem cahche purging, e.g. under Android when .NET Standard doesn't have the faciclity to request free memory the info should go from caller</param>
-        public BigTest(string drivePath, long fileSize = 1024 * 1024 * 1024, bool writeBuffering = false, MemCacheOptions memCache = MemCacheOptions.Disabled, string filePath = null, string purgingFilePath = null, Func<long> freeMem = null, long totalMem = -1, WriteBufferFlusher flusher = null, bool tests32k = false, bool mockFileStream = false, bool disableMacStream = false)
+        /// <param name="freeMem">Delegate that gives info about free memory and used for mem cahche purging,
+        /// e.g. under Android when .NET Standard doesn't have the faciclity to request free memory the info should go from caller
+        /// </param>
+        public BigTest(string drivePath, long fileSize = 1024 * 1024 * 1024, bool writeBuffering = false, MemCacheOptions memCache = MemCacheOptions.Disabled, string filePath = null, ICachePurger purger = null, string purgingFilePath = null, Func<long> freeMem = null, long totalMem = -1, WriteBufferFlusher flusher = null, bool mockFileStream = false, bool disableMacStream = false)
         {
             Func<bool> checkBreakCalled = () => breakCalled;
 
@@ -47,13 +49,25 @@ namespace Saplin.StorageSpeedMeter
             this.fileSize = fileSize;
 
             AddTest(new SequentialWriteTest(file, bigBlockSize, true));
-            AddTest(new SequentialReadTest(file, bigBlockSize, memCache == MemCacheOptions.DisabledEmulation ? new CachePurger(purgingFilePath, freeMem, checkBreakCalled) : null));
+
+            AddTest(
+                new SequentialReadTest(file,
+                    bigBlockSize,
+                    memCache == MemCacheOptions.DisabledEmulation ?
+                        ( purger == null ? new CachePurger(purgingFilePath, freeMem, checkBreakCalled) : purger)
+                        : null)
+            );
 
             AddTest(new RandomWriteTest(file, smallBlockSize, randomTestDuration));
-            if (tests32k) AddTest(new RandomWriteTest(file, mediumBlockSize, randomTestDuration));
 
-            AddTest(new RandomReadTest(file, smallBlockSize, randomTestDuration, memCache == MemCacheOptions.DisabledEmulation ? new CachePurger(purgingFilePath, freeMem, checkBreakCalled) : null));
-            if (tests32k) AddTest(new RandomReadTest(file, mediumBlockSize, randomTestDuration, memCache == MemCacheOptions.DisabledEmulation ? new CachePurger(purgingFilePath, freeMem, checkBreakCalled) : null));
+            AddTest(
+                new RandomReadTest(file,
+                    smallBlockSize,
+                    randomTestDuration,
+                    memCache == MemCacheOptions.DisabledEmulation ?
+                        (purger == null ? new CachePurger(purgingFilePath, freeMem, checkBreakCalled) : purger)
+                        : null)
+            );
 
             SetUpRemainigCalculations();
 

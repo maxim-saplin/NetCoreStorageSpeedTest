@@ -15,7 +15,7 @@ namespace Saplin.StorageSpeedMeter
 
         public event EventHandler<TestUpdateEventArgs> StatusUpdate;
 
-        protected bool breakCalled = false;
+        protected volatile bool breakCalled = false;
         protected List<TestResults> results;
 
         public TestSuite()
