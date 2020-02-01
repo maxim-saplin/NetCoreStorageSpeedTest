@@ -11,3 +11,5 @@ Linux: https://github.com/maxim-saplin/NetCoreStorageSpeedTest/releases/download
 
 Older Win/Mac versions: https://github.com/maxim-saplin/NetCoreStorageSpeedTest/releases/tag/1.1.5
 
+# Building
+Use Visual Stuio (Win or Mac) and build/run "CPDT_Console" project from within IDE
