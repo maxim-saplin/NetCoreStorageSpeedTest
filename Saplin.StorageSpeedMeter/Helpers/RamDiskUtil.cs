@@ -88,18 +88,18 @@ namespace Saplin.StorageSpeedMeter
 
         private static string[] macContainsExpcetions = { "/private/var" };
         private static string[] linuxContainsExpcetions = { "/sys/", "/snap/" };
-        private static string[] androidIsExpcetions = { "/", "/vendor", "/firmware", "/dsp", "/persist", "/system", "/cache" };
-        private static string[] androidContainsExpcetions = { "/mnt/runtime", "/data/var", "/mnt/media_rw" };
+        //private static string[] androidIsExpcetions = { "/", "/vendor", "/firmware", "/dsp", "/persist", "/system", "/cache" };
+        //private static string[] androidContainsExpcetions = { "/mnt/runtime", "/data/var", "/mnt/media_rw" };
 
         public static DriveInfo[] GetEligibleDrives()
         {
-            var drives = DriveInfo.GetDrives()
-                                      .Where(d => d.IsReady
-                                             && (d.DriveType == DriveType.Fixed
-                                                                || d.DriveType == DriveType.Removable
-                                                                || d.DriveType == DriveType.Unknown
-                                                                || d.DriveType == DriveType.Network)
-                                            );
+            var drives = DriveInfo.GetDrives().AsEnumerable();
+                                      //.Where(d => d.IsReady
+                                      //       && (d.DriveType == DriveType.Fixed
+                                      //                          || d.DriveType == DriveType.Removable
+                                      //                          || d.DriveType == DriveType.Unknown
+                                      //                          || d.DriveType == DriveType.Network)
+                                      //      );
 
             if (RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
             {
@@ -109,14 +109,14 @@ namespace Saplin.StorageSpeedMeter
             else if (RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
             {
             }
-            else // Android or Linux
+            else //Linux, no Android
             {
-                foreach (var e in androidContainsExpcetions)
-                    drives = drives.Where(d => !d.Name.Contains(e));
+                //foreach (var e in androidContainsExpcetions)
+                //    drives = drives.Where(d => !d.Name.Contains(e));
                 foreach (var e in linuxContainsExpcetions)
                     drives = drives.Where(d => !d.Name.Contains(e));
-                foreach (var e in androidIsExpcetions)
-                    drives = drives.Where(d => d.Name.ToLower() != e.ToLower());
+                //foreach (var e in androidIsExpcetions)
+                //    drives = drives.Where(d => d.Name.ToLower() != e.ToLower());
             }
 
             return drives.ToArray();
@@ -146,15 +146,15 @@ namespace Saplin.StorageSpeedMeter
             }
             else // Linux
             {
-				if (drivePath == "/home") path = "~"; // Linux
-				else //Android
-				{
-					if (drivePath == "/data") // Internal storage, use personal folder
-					{
-						path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), fileName);
-					}
-					else path = Path.Combine(drivePath, fileName);
-				}
+				if (drivePath == "/home" || drivePath == "/") path = "~"; // Linux
+				//else //Android
+				//{
+				//	if (drivePath == "/data") // Internal storage, use personal folder
+				//	{
+				//		path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), fileName);
+				//	} 
+				//	else path = Path.Combine(drivePath, fileName);
+				//}
             }
 
             return path;

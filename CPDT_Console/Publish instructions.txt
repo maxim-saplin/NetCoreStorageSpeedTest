@@ -1,4 +1,14 @@
-﻿Self-contained .NET Core publish (the output will contain all .NET Core files required by the app and won't need .NET Core installation as a system-wide dependency)
+﻿
+Publishing on mac
+
+dotnet publish /Users/user/_Src/NetCoreStorageSpeedTest.git/CPDT_Console/CPDT_Console.csproj -c release -r linux-x64 -o /Users/_Src/NetCoreStorageSpeedTest.git/CPDT_Console/output-linux-x64 --self-contained true /p:PublishSingleFile=true
+
+
+
+!OLD
+
+
+Self-contained .NET Core publish (the output will contain all .NET Core files required by the app and won't need .NET Core installation as a system-wide dependency)
 
 1. Add MyGet package repository in Visual Studio settings. Go to "Tools -> Options -> Package Manager -> Package Sources" and add new source at https://dotnet.myget.org/F/dotnet-core/api/v3/index.json
 
@@ -28,7 +38,8 @@ Reference Microsoft.DotNet.ILCompiler in WinMacDiskSpeedTest project
 
 3. Run publish command to generate output:
 
-dotnet publish C:\Dropbox\Projects\NetCoreStorageSpeedTest.git\WinMacDiskSpeedTest\WinMacDiskSpeedTest.csproj -c release -r win-x64 -o output-win-x64
-dotnet publish /Users/user/Projects/NetCoreStorageSpeedTest.git/WinMacDiskSpeedTest/WinMacDiskSpeedTest.csproj -c release -r osx-x64 -o output-osx-x64 -f netcoreapp2.2
+dotnet publish C:\Dropbox\Projects\NetCoreStorageSpeedTest.git\CPDT_Console\CPDT_Console.csproj -c release -r win-x64 -o output-win-x64
+dotnet publish /Users/user/Projects/NetCoreStorageSpeedTest.git/CPDT_Console/CPDT_Console.csproj -c release -r osx-x64 -o output-osx-x64 -f netcoreapp2.2
+dotnet publish /Users/user/Projects/NetCoreStorageSpeedTest.git/CPDT_Console/CPDT_Console.csproj -c release -r linux-x64 -o output-linux-x64 -f --self-contained true netcoreapp3.0
 
-- if dontnet publish shows an error, you might want to try to use VS publish dialog (Build -> Publish WinMacDiskSpeedTest)
+- if dontnet publish shows an error, you might want to try to use VS publish dialog (Build -> Publish)
