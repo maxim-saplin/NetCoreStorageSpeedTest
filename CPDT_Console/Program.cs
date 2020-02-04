@@ -62,8 +62,8 @@ namespace WinMacDiskSpeedTest
                 Console.WriteLine("CPDT_Console - STORAGE SPEED TEST\n");
 
                 Console.ForegroundColor = ConsoleColor.DarkGray;
-                Console.WriteLine("Total RAM: {0:0.00}Gb, Available RAM: {1:0.00}Gb\n", (double)RamDiskUtil.TotalRam / 1024 / 1024 / 1024, (double)RamDiskUtil.FreeRam / 1024 / 1024 / 1024);
-                WriteLineWordWrap("The test uses standrd OS's file API (WinAPI on Windows and POSIX on Mac/Linux) to measure the speed of transfers between storage device and system memory.\n Write buffering and mem cahce are disabled\n");
+                //Console.WriteLine("Total RAM: {0:0.00}Gb, Available RAM: {1:0.00}Gb\n", (double)RamDiskUtil.TotalRam / 1024 / 1024 / 1024, (double)RamDiskUtil.FreeRam / 1024 / 1024 / 1024);
+                WriteLineWordWrap("The test uses standrd OS's file API (WinAPI on Windows and POSIX on Mac/Linux) to measure the speed of transfers between storage device and system memory.\nWrite buffering and mem cahce are disabled\n");
                 Console.ResetColor();
 
                 const long fileSize = 1024 * 1024 * 1024;
@@ -117,7 +117,7 @@ namespace WinMacDiskSpeedTest
                                     Console.Write("Test interrupted");
                                     break;
                                 case TestStatus.Running:
-                                    Console.Write("{0}% {2} {1:0.0} MB/s", e.ProgressPercent, e.RecentResult, GetNextAnimation());
+                                    Console.Write("{0}% {2} {1:0.00} MB/s", e.ProgressPercent, e.RecentResult, GetNextAnimation());
                                     break;
                             }
                             Console.ResetColor();
@@ -125,17 +125,17 @@ namespace WinMacDiskSpeedTest
                         else if ((e.Status == TestStatus.Completed) && (e.Results != null))
                         {
                             Console.Write(
-                                string.Format("Avg: {1:0.0}{0}\t",
+                                string.Format("Avg: {1:0.00}{0}\t",
                                 unit,
                                 e.Results.AvgThroughput)
                             );
 
                             Console.ForegroundColor = ConsoleColor.DarkGray;
                             Console.Write(
-                                string.Format(" Min÷Max: {1:0.0} ÷ {2:0.0}, Time: {3}m{4:00}s",
+                                string.Format(" Min÷Max: {1:0.00} ÷ {2:0.00}, Time: {3}m{4:00}s",
                                 unit,
-                                e.Results.MinN,
-                                e.Results.MaxN,
+                                e.Results.Min,
+                                e.Results.Max,
                                 e.ElapsedMs / 1000 / 60,
                                 e.ElapsedMs / 1000 % 60)
                             );
@@ -161,8 +161,9 @@ namespace WinMacDiskSpeedTest
                         Console.ForegroundColor = ConsoleColor.DarkGray;
                         Console.WriteLine("*Calculation: average throughput with 80% read/written seqentialy and 20% randomly");
                         Console.ResetColor();
-                        Console.WriteLine("\nTest file deleted.  Saving results to CSV files in folder: " + testSuite.ResultsFolderPath);
-                        testSuite.ExportToCsv(testSuite.ResultsFolderPath, true);
+                        Console.WriteLine("\nTest file deleted.");
+                        //Console.WriteLine("\nTest file deleted.  Saving results to CSV files in folder: " + testSuite.ResultsFolderPath);
+                        //testSuite.ExportToCsv(testSuite.ResultsFolderPath, true);
                     }
                 }
             }

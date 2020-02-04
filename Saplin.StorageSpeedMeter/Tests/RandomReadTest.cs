@@ -7,7 +7,7 @@ namespace Saplin.StorageSpeedMeter
     {
         private long fileSize;
 
-        public RandomReadTest(TestFile file, int blockSize, int testTimeSecs = 30, ICachePurger cachePurger = null) : base(file.ReadStream, blockSize, testTimeSecs)
+        public RandomReadTest(TestFile file, int blockSize, int testTimeSecs = 30, ICachePurger cachePurger = null) : base(file.ReadStream, file, blockSize, testTimeSecs)
         {
             this.cachePurger = cachePurger;
             if (cachePurger != null) IsNormalizedAvg = true;

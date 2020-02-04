@@ -28,11 +28,13 @@
     <None Remove="out_win_min\**" />
     <None Remove=".gitignore" />
     <None Remove=".DS_Store" />
-    <Compile Remove="MemoryFailPoint.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Mono.Posix.NETStandard" Version="1.0.0" />
   </ItemGroup>
-
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="$(ConfigurationName) == Release">
+    <Copy SourceFiles="$(TargetDir)\Saplin.StorageSpeedMeter.dll" DestinationFolder="$(SolutionDir)\..\CrossPlatformDiskTest.git\References\" OverwriteReadOnlyFiles="true" />
+    <Copy SourceFiles="$(TargetDir)\Saplin.StorageSpeedMeter.dll" DestinationFolder="$(SolutionDir)\..\CPDT.Extra.git\References\" OverwriteReadOnlyFiles="true" />
+  </Target>
 </Project>

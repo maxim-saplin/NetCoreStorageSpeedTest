@@ -10,7 +10,8 @@ namespace Saplin.StorageSpeedMeter
         private const int maxBlocksInTest = 1 * 1024 * 1024; // 8 Mb for shuffled positions, 4GB for 4KB blocks
 
         protected readonly FileStream fileStream;
-        
+        protected readonly TestFile file;
+
         protected readonly double? percentOfFileToOwerwrite;
         protected readonly int? maxTestTime;
         protected readonly int blocksInMemory;
@@ -18,12 +19,13 @@ namespace Saplin.StorageSpeedMeter
         protected long maxBlock; // max index of block accesible
         protected long minBlock;
 
-        public RandomTest(FileStream fileStream, int blockSize, int maxTestTimeSecs = 25)
+        public RandomTest(FileStream fileStream, TestFile file, int blockSize, int maxTestTimeSecs = 25)
         {
             if (percentOfFileToOwerwrite <= 0) throw new ArgumentOutOfRangeException("percentOfFileToOwerwrite", "Size of file to be overwritten (in percents of it's current size) must greater than 0");
             if (blockSize <= 0) throw new ArgumentOutOfRangeException("blockSize", "Block size cant be negative");
 
             this.fileStream = fileStream;
+            this.file = file;
             this.blockSize = blockSize;
             blocksInMemory = memoryBuffSize / blockSize;
             this.maxTestTime = maxTestTimeSecs;
@@ -68,6 +70,9 @@ namespace Saplin.StorageSpeedMeter
         public override TestResults Execute()
         {
             Status = TestStatus.Started;
+
+            //Linux
+            file.EmptyMemCacheAfterWritesIfNeeded();
 
             ValidateAndInitParams();
             GeneratePositionsPlan();

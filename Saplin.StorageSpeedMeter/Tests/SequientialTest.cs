@@ -7,6 +7,7 @@ namespace Saplin.StorageSpeedMeter
     public abstract class SequentialTest : Test
     {
         protected readonly FileStream fileStream;
+        protected TestFile file;
         protected long totalBlocks;
         protected bool warmUp;
         protected readonly double warmUpBlocksPercentFromTotal = 0.05;
@@ -16,12 +17,13 @@ namespace Saplin.StorageSpeedMeter
             get { return totalBlocks; }
         }
 
-        public SequentialTest(FileStream fileStream, int blockSize, long totalBlocks = 0, bool warmUp = false)
+        public SequentialTest(FileStream fileStream, TestFile file, int blockSize, long totalBlocks = 0, bool warmUp = false)
         {
             if (blockSize <= 0) throw new ArgumentOutOfRangeException("blockSize", "Block size cant be negative");
             if (totalBlocks < 0) throw new ArgumentOutOfRangeException("totalBlocks", "Block number cant be negative");
 
             this.fileStream = fileStream;
+            this.file = file;
             this.blockSize = blockSize;
             this.totalBlocks = totalBlocks;
             this.warmUp = warmUp;
@@ -30,6 +32,9 @@ namespace Saplin.StorageSpeedMeter
         public override TestResults Execute()
         {
             Status = TestStatus.Started;
+
+            //Linux
+            file.EmptyMemCacheAfterWritesIfNeeded();
 
             var results = new TestResults(this);
 
@@ -59,10 +64,14 @@ namespace Saplin.StorageSpeedMeter
 
             RestartElapsed();
 
+            //var sw2 = new Stopwatch();
+
             var warmUpBlocks = warmUp ? (int)Math.Ceiling(totalBlocks*warmUpBlocksPercentFromTotal) : 0;
             if (warmUp) Status = TestStatus.WarmigUp; else Status = TestStatus.Running;
             for (var i = 1 - warmUpBlocks; i < totalBlocks + 1; i++)
             {
+                //sw2.Restart();
+                
                 if (breakCalled)
                 {
                     return results;
@@ -88,6 +97,16 @@ namespace Saplin.StorageSpeedMeter
                         prevPercent = curPercent;
                     }
                 }
+
+                //sw2.Stop();
+
+                //var swMs = ((double)sw.ElapsedTicks / Stopwatch.Frequency)*1000 ;
+                //var sw2Ms = ((double)sw2.ElapsedTicks / Stopwatch.Frequency)*1000 ;
+
+                //Debug.WriteLine("Block: " + i + 
+                //                "; sw(ms): " + swMs +
+                //                "; sw2(ms): " + sw2Ms +
+                //                "sw/sw2: " + swMs/sw2Ms);
             }
 
             results.TotalTimeMs = StopElapsed();

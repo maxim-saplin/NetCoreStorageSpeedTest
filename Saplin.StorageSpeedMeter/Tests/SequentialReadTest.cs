@@ -5,7 +5,7 @@ namespace Saplin.StorageSpeedMeter
 {
     public class SequentialReadTest : SequentialTest
     {
-        public SequentialReadTest(TestFile file, int blockSize, ICachePurger cachePurger = null) : base(file.ReadStream, blockSize, file.TestAreaSizeBytes/blockSize)
+        public SequentialReadTest(TestFile file, int blockSize, ICachePurger cachePurger = null) : base(file.ReadStream, file, blockSize, file.TestAreaSizeBytes/blockSize)
         {
             this.cachePurger = cachePurger;
         }

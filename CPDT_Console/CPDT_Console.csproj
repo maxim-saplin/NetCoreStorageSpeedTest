@@ -9,6 +9,9 @@
         <PublishReadyToRun>false</PublishReadyToRun>
         <PublishSingleFile>false</PublishSingleFile>
     </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+      <DebugType></DebugType>
+    </PropertyGroup>
     <ItemGroup>
         <ProjectReference Include="..\Saplin.StorageSpeedMeter\Saplin.StorageSpeedMeter.csproj" />
     </ItemGroup>

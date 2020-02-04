@@ -8,7 +8,7 @@ namespace Saplin.StorageSpeedMeter
         private bool flushBuf = false;
         private Action flush;
 
-        public SequentialWriteTest(TestFile file, int blockSize, bool warmUp) : base(file.WriteStream, blockSize, file.TestAreaSizeBytes/blockSize, warmUp)
+        public SequentialWriteTest(TestFile file, int blockSize, bool warmUp) : base(file.WriteStream, file, blockSize, file.TestAreaSizeBytes/blockSize, warmUp)
         {
             flushBuf = file.flushWrites;
             flush = file.flush;

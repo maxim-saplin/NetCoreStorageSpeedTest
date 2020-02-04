@@ -10,7 +10,7 @@ namespace Saplin.StorageSpeedMeter
         private Action flush;
         private long fileSize;
 
-        public RandomWriteTest(TestFile file, int blockSize, int testTimeSecs = 30) : base(file.WriteStream, blockSize, testTimeSecs)
+        public RandomWriteTest(TestFile file, int blockSize, int testTimeSecs = 30) : base(file.WriteStream, file, blockSize, testTimeSecs)
         {
             flushBuf = file.flushWrites;
             flush = file.flush;

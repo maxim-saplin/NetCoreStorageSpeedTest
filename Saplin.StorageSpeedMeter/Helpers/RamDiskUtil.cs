@@ -87,7 +87,7 @@ namespace Saplin.StorageSpeedMeter
 
 
         private static string[] macContainsExpcetions = { "/private/var" };
-        private static string[] linuxContainsExpcetions = { "/sys/", "/snap/" };
+        private static string[] linuxContainsExpcetions = { "/sys", "/snap", "/dev", "/run", "/proc" };
         //private static string[] androidIsExpcetions = { "/", "/vendor", "/firmware", "/dsp", "/persist", "/system", "/cache" };
         //private static string[] androidContainsExpcetions = { "/mnt/runtime", "/data/var", "/mnt/media_rw" };
 
@@ -146,8 +146,13 @@ namespace Saplin.StorageSpeedMeter
             }
             else // Linux
             {
-				if (drivePath == "/home" || drivePath == "/") path = "~"; // Linux
-				//else //Android
+                if (drivePath == "/home" || drivePath == "/")
+                {
+                    path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), fileName);
+                }
+                else path = Path.Combine(drivePath, fileName); 
+
+                //else //Android
 				//{
 				//	if (drivePath == "/data") // Internal storage, use personal folder
 				//	{
