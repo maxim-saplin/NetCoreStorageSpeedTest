@@ -86,7 +86,7 @@ namespace Saplin.StorageSpeedMeter
         }
 
 
-        private static string[] macContainsExpcetions = { "/private/var" };
+        private static string[] macContainsExpcetions = { "/private/var", "/dev", "/System/Volumes/Data/home" };
         private static string[] linuxContainsExpcetions = { "/sys", "/snap", "/dev", "/run", "/proc" };
         //private static string[] androidIsExpcetions = { "/", "/vendor", "/firmware", "/dsp", "/persist", "/system", "/cache" };
         //private static string[] androidContainsExpcetions = { "/mnt/runtime", "/data/var", "/mnt/media_rw" };
@@ -128,7 +128,7 @@ namespace Saplin.StorageSpeedMeter
 
             if (RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
             {
-                if (drivePath == "/") //Mac system disk
+                if (drivePath == "/" || drivePath == "/System/Volumes/Data") //Mac system disk
                 {
                     path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), fileName);
                 }
