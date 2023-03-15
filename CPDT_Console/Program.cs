@@ -63,7 +63,7 @@ namespace WinMacDiskSpeedTest
 
                 Console.ForegroundColor = ConsoleColor.DarkGray;
                 //Console.WriteLine("Total RAM: {0:0.00}Gb, Available RAM: {1:0.00}Gb\n", (double)RamDiskUtil.TotalRam / 1024 / 1024 / 1024, (double)RamDiskUtil.FreeRam / 1024 / 1024 / 1024);
-                WriteLineWordWrap("The test uses standrd OS's file API (WinAPI on Windows and POSIX on Mac/Linux) to measure the speed of transfers between storage device and system memory.\nWrite buffering and mem cahce are disabled\n");
+                WriteLineWordWrap("The test uses standrd OS's file API (WinAPI on Windows and POSIX on Mac/Linux) to measure the speed of transfers between storage device and system memory.\nWrite buffering and mem cache are disabled\n");
                 Console.ResetColor();
 
                 const long fileSize = 1024 * 1024 * 1024;
