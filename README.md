@@ -13,4 +13,11 @@ Linux: https://github.com/maxim-saplin/NetCoreStorageSpeedTest/releases/latest/d
 Older Win/Mac versions: https://github.com/maxim-saplin/NetCoreStorageSpeedTest/releases/tag/1.1.5
 
 # Building
-Use Visual Stuio (Win or Mac) and build/run "CPDT_Console" project from within IDE
+Build using `dotnet`:
+```
+dotnet publish CPDT_Console/CPDT_Console.csproj -c release -r linux-x64 -o output --self-contained true /p:PublishSingleFile=true
+```
+
+You may replace `linux-x64` with the platform you're building for.
+
+You may also try to use Visual Stuio (Win or Mac) and build/run "CPDT_Console" project from within IDE
